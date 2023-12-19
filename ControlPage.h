@@ -395,7 +395,6 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       xhttp.send();
     }
 
-
     // function to handle the response from the ESP
     function response(){
       var message;
@@ -424,26 +423,26 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       xmldoc = xmlResponse.getElementsByTagName("Pos");
       message = xmldoc[0].firstChild.nodeValue;
       if (message == 0){
-        document.getElementById("visitorPosessionDisp").style.background-color="Orange"; 
-        document.getElementById("homePosessionDisp").style.background-color="gray";
+        document.getElementById("visitorPosessionDisp").style.backgroundColor="orange"; 
+        document.getElementById("homePosessionDisp").style.backgroundColor="gray";
       }
       else {
-        document.getElementById("visitorPosessionDisp").style.background-color="gray"; 
-        document.getElementById("homePosessionDisp").style.background-color="Orange";
+        document.getElementById("visitorPosessionDisp").style.backgroundColor="gray"; 
+        document.getElementById("homePosessionDisp").style.backgroundColor="orange";
       }
       xmldoc = xmlResponse.getElementsByTagName("Bonus");
       message = xmldoc[0].firstChild.nodeValue;
       if (message == -1){
-        document.getElementById("homeBonusDisp").style.background-color="yellow";
-        document.getElementById("visitorBonusDisp").style.background-color="gray"; 
+        document.getElementById("homeBonusDisp").style.backgroundColor="yellow";
+        document.getElementById("visitorBonusDisp").style.backgroundColor="gray"; 
       }
       else if (message == 1){
-        document.getElementById("homePosessionDisp").style.background-color="gray";
-        document.getElementById("visitorPosessionDisp").style.background-color="yellow"; 
+        document.getElementById("homePosessionDisp").style.backgroundColor="gray";
+        document.getElementById("visitorPosessionDisp").style.backgroundColor="yellow"; 
       }
       else {
-        document.getElementById("visitorBonusDisp").style.background-color="gray"; 
-        document.getElementById("homeBonusDisp").style.background-color="gray";
+        document.getElementById("visitorBonusDisp").style.backgroundColor="gray"; 
+        document.getElementById("homeBonusDisp").style.backgroundColor="gray";
       }
     }
   
@@ -461,7 +460,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       }       
         // you may have to play with this value, big pages need more porcessing time, and hence
         // a longer timeout
-        setTimeout("process()",100);
+        setTimeout("process()", 100);
     }
   </script>
 </html>
