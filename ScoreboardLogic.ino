@@ -54,9 +54,9 @@
 
 */
 
-#include <WiFi.h>       // standard library
-#include <WebServer.h>  // standard library
-#include "ControlPage.h"   // .h file that stores your html page code
+#include <WiFi.h>         // standard library
+#include <WebServer.h>    // standard library
+#include "ControlPage.h"  // .h file that stores your html page code
 #include <FastLED.h>
 
 // here you post web pages to your homes intranet which will make page debugging easier
@@ -64,12 +64,12 @@
 #define USE_INTRANET
 
 // replace this with your homes intranet connect parameters
-#define LOCAL_SSID "your_home_ssid"
-#define LOCAL_PASS "your_home_passwrord"
+#define LOCAL_SSID "SSID"
+#define LOCAL_PASS "PASSWORD"
 
 // once  you are read to go live these settings are what you client will connect to
-#define AP_SSID "TestWebSite"
-#define AP_PASS "023456789"
+#define AP_SSID "KeverianScoreboard"
+#define AP_PASS "Karate*"
 
 #define NUM_LEDS 212
 #define DATA_PIN 6
@@ -302,12 +302,15 @@ void updateScoreboard()
 
 void HomeScoreUp1() {
   nHomeScore++;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void HomeScoreReset() {
   nHomeScore = 0;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void HomeScoreDown1() {
     nHomeScore--;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void PeriodUp() {
   nPeriod++;
@@ -315,67 +318,88 @@ void PeriodUp() {
   {
     nPeriod = 1;
   }
+  server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorScoreDown1() {
   nVisitorScore--;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorScoreReset() {
   nVisitorScore = 0;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorScoreUp1() {
   nVisitorScore++;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void HomeBonus() {
   bonus = (bonus == -1) ? 0 : -1;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void HomePos() {
   posession = 0;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorPos() {
   posession = 1;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorBonus() {
   bonus = (bonus == 1) ? 0 : 1;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void StartStopTimer() {
   bTimeRunning = !bTimeRunning;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void TimeDn1() {
   seconds--;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void TimeDn10() {
   seconds-=10;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void TimeDn60() {
   seconds-=60;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void TimeUp60() {
   seconds+=60;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void TimeUp10() {
   seconds+=10;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void TimeUp1() {
   seconds++;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet12() {
   seconds = 720;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet10() {
   seconds = 600;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet0() {
   seconds = 0;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet2() {
   seconds = 120;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet20() {
   seconds = 1200;
+  server.send(200, "text/plain", ""); //Send web page
 }
 void Buzzer() {
   // TODO:
   Serial.println("Zzzzzt!");
+  server.send(200, "text/plain", ""); //Send web page
 }
 
 
@@ -508,7 +532,6 @@ void SendWebsite() {
   // you may have to play with this value, big pages need more porcessing time, and hence
   // a longer timeout that 200 ms
   server.send(200, "text/html", PAGE_MAIN);
-
 }
 
 // code to send the main web page
@@ -518,11 +541,11 @@ void SendXML() {
 
   strcpy(XML, "<?xml version = '1.0'?>\n<Data>\n");
 
+  sprintf(buf, "<Time>%d:%d</Time>\n", seconds / 60, seconds % 60);
+  strcat(XML, buf);
   sprintf(buf, "<HomeScore>%d</HomeScore>\n", nHomeScore);
   strcat(XML, buf);
   sprintf(buf, "<VisitorScore>%d</VisitorScore>\n", nVisitorScore);
-  strcat(XML, buf);
-  sprintf(buf, "<Time>%d:%d</Time>\n", seconds / 60, seconds % 60);
   strcat(XML, buf);
   sprintf(buf, "<Period>%d</Period>\n", nPeriod);
   strcat(XML, buf);
@@ -535,7 +558,7 @@ void SendXML() {
   // wanna see what the XML code looks like?
   // actually print it to the serial monitor and use some text editor to get the size
   // then pad and adjust char XML[2048]; above
-  Serial.println(XML);
+  // Serial.println(XML);
 
   // you may have to play with this value, big pages need more porcessing time, and hence
   // a longer timeout that 200 ms

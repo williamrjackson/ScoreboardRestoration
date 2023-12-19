@@ -1,63 +1,3 @@
-/*
-
-
-  OK, ya ready for some fun? HTML + CSS styling + javascript all in and undebuggable environment
-
-  one trick I've learned to how to debug HTML and CSS code.
-
-  get all your HTML code (from html to /html) and past it into this test site
-  muck with the HTML and CSS code until it's what you want
-  https://www.w3schools.com/html/tryit.asp?filename=tryhtml_intro
-
-  No clue how to debug javascrip other that write, compile, upload, refresh, guess, repeat
-
-  I'm using class designators to set styles and id's for data updating
-  for example:
-  the CSS class .tabledata defines with the cell will look like
-  <td><div class="tabledata" id = "switch"></div></td>
-
-  the XML code will update the data where id = "switch"
-  java script then uses getElementById
-  document.getElementById("switch").innerHTML="Switch is OFF";
-
-
-  .. now you can have the class define the look AND the class update the content, but you will then need
-  a class for every data field that must be updated, here's what that will look like
-  <td><div class="switch"></div></td>
-
-  the XML code will update the data where class = "switch"
-  java script then uses getElementsByClassName
-  document.getElementsByClassName("switch")[0].style.color=text_color;
-
-
-  the main general sections of a web page are the following and used here
-
-  <html>
-    <style>
-    // dump CSS style stuff in here
-    </style>
-    <body>
-      <header>
-      // put header code for cute banners here
-      </header>
-      <main>
-      // the buld of your web page contents
-      </main>
-      <footer>
-      // put cute footer (c) 2021 xyz inc type thing
-      </footer>
-    </body>
-    <script>
-    // you java code between these tags
-    </script>
-  </html>
-
-
-*/
-
-// note R"KEYWORD( html page code )KEYWORD"; 
-// again I hate strings, so char is it and this method let's us write naturally
-
 const char PAGE_MAIN[] PROGMEM = R"=====(
 
 <!DOCTYPE html>
@@ -456,135 +396,56 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
     }
 
 
-
-    // function to handle button press from HTML code above
-    // and send a processing string back to server
-    // this processing string is use in the .on method
-    function ButtonPress1() {
-      var xhttp = new XMLHttpRequest(); 
-      /*
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          document.getElementById("button1").innerHTML = this.responseText;
-        }
-      }
-      */
-      xhttp.open("PUT", "BUTTON_1", false);
-      xhttp.send(); 
-    }
-    
-    function UpdateSlider(value) {
-      var xhttp = new XMLHttpRequest();
-      // this time i want immediate feedback to the fan speed
-      // yea yea yea i realize i'm computing fan speed but the point
-      // is how to give immediate feedback
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          // update the web based on reply from  ESP
-          document.getElementById("fanrpm").innerHTML=this.responseText;
-        }
-      }
-      // this syntax is really weird the ? is a delimiter
-      // first arg UPDATE_SLIDER is use in the .on method
-      // server.on("/UPDATE_SLIDER", UpdateSlider);
-      // then the second arg VALUE is use in the processing function
-      // String t_state = server.arg("VALUE");
-      // then + the controls value property
-      xhttp.open("PUT", "UPDATE_SLIDER?VALUE="+value, true);
-      xhttp.send();
-    }
-
     // function to handle the response from the ESP
     function response(){
       var message;
-      var barwidth;
-      var currentsensor;
       var xmlResponse;
       var xmldoc;
-      var dt = new Date();
-      var color = "#e8e8e8";
      
       // get the xml stream
       xmlResponse=xmlHttp.responseXML;
   
-      // get host date and time
-      document.getElementById("time").innerHTML = dt.toLocaleTimeString();
-      document.getElementById("date").innerHTML = dt.toLocaleDateString();
-  
-      // A0
-      xmldoc = xmlResponse.getElementsByTagName("B0"); //bits for A0
+      xmldoc = xmlResponse.getElementsByTagName("Time");
       message = xmldoc[0].firstChild.nodeValue;
+      document.getElementById("timeDisp").innerHTML=message;      
+
+      xmldoc = xmlResponse.getElementsByTagName("HomeScore");
+      message = xmldoc[0].firstChild.nodeValue;
+      document.getElementById("homeScoreDisp").innerHTML=message;      
       
-      if (message > 2048){
-      color = "#aa0000";
-      }
-      else {
-        color = "#0000aa";
-      }
-      
-      barwidth = message / 40.95;
-      document.getElementById("b0").innerHTML=message;
-      document.getElementById("b0").style.width=(barwidth+"%");
-      // if you want to use global color set above in <style> section
-      // other wise uncomment and let the value dictate the color
-      //document.getElementById("b0").style.backgroundColor=color;
-      //document.getElementById("b0").style.borderRadius="5px";
-      
-      xmldoc = xmlResponse.getElementsByTagName("V0"); //volts for A0
+      xmldoc = xmlResponse.getElementsByTagName("VisitorScore");
       message = xmldoc[0].firstChild.nodeValue;
-      document.getElementById("v0").innerHTML=message;
-      document.getElementById("v0").style.width=(barwidth+"%");
-      // you can set color dynamically, maybe blue below a value, red above
-      document.getElementById("v0").style.backgroundColor=color;
-      //document.getElementById("v0").style.borderRadius="5px";
-  
-      // A1
-      xmldoc = xmlResponse.getElementsByTagName("B1");
+      document.getElementById("visitorScoreDisp").innerHTML=message;
+
+      xmldoc = xmlResponse.getElementsByTagName("Period");
       message = xmldoc[0].firstChild.nodeValue;
-      if (message > 2048){
-      color = "#aa0000";
-      }
-      else {
-        color = "#0000aa";
-      }
-      document.getElementById("b1").innerHTML=message;
-      width = message / 40.95;
-      document.getElementById("b1").style.width=(width+"%");
-      document.getElementById("b1").style.backgroundColor=color;
-      //document.getElementById("b1").style.borderRadius="5px";
-      
-      xmldoc = xmlResponse.getElementsByTagName("V1");
+      document.getElementById("periodDisp").innerHTML=message;
+
+      xmldoc = xmlResponse.getElementsByTagName("Pos");
       message = xmldoc[0].firstChild.nodeValue;
-      document.getElementById("v1").innerHTML=message;
-      document.getElementById("v1").style.width=(width+"%");
-      document.getElementById("v1").style.backgroundColor=color;
-      //document.getElementById("v1").style.borderRadius="5px";
-  
-      xmldoc = xmlResponse.getElementsByTagName("LED");
-      message = xmldoc[0].firstChild.nodeValue;
-  
       if (message == 0){
-        document.getElementById("btn0").innerHTML="Turn ON";
-      }
-      else{
-        document.getElementById("btn0").innerHTML="Turn OFF";
-      }
-         
-      xmldoc = xmlResponse.getElementsByTagName("SWITCH");
-      message = xmldoc[0].firstChild.nodeValue;
-      document.getElementById("switch").style.backgroundColor="rgb(200,200,200)";
-      // update the text in the table
-      if (message == 0){
-        document.getElementById("switch").innerHTML="Switch is OFF";
-        document.getElementById("btn1").innerHTML="Turn ON";
-        document.getElementById("switch").style.color="#0000AA"; 
+        document.getElementById("visitorPosessionDisp").style.background-color="Orange"; 
+        document.getElementById("homePosessionDisp").style.background-color="gray";
       }
       else {
-        document.getElementById("switch").innerHTML="Switch is ON";
-        document.getElementById("btn1").innerHTML="Turn OFF";
-        document.getElementById("switch").style.color="#00AA00";
+        document.getElementById("visitorPosessionDisp").style.background-color="gray"; 
+        document.getElementById("homePosessionDisp").style.background-color="Orange";
       }
-     }
+      xmldoc = xmlResponse.getElementsByTagName("Bonus");
+      message = xmldoc[0].firstChild.nodeValue;
+      if (message == -1){
+        document.getElementById("homeBonusDisp").style.background-color="yellow";
+        document.getElementById("visitorBonusDisp").style.background-color="gray"; 
+      }
+      else if (message == 1){
+        document.getElementById("homePosessionDisp").style.background-color="gray";
+        document.getElementById("visitorPosessionDisp").style.background-color="yellow"; 
+      }
+      else {
+        document.getElementById("visitorBonusDisp").style.background-color="gray"; 
+        document.getElementById("homeBonusDisp").style.background-color="gray";
+      }
+    }
   
     // general processing code for the web page to ask for an XML steam
     // this is actually why you need to keep sending data to the page to 
@@ -602,12 +463,6 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         // a longer timeout
         setTimeout("process()",100);
     }
-  
-  
   </script>
-
 </html>
-
-
-
 )=====";
