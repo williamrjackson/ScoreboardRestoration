@@ -1,63 +1,11 @@
-/*
+// Control stuff borrowed from https://github.com/KrisKasprzak/ESP32_WebPage
+// https://www.youtube.com/watch?v=pL3dhGtmcMY
 
 
-  this example will show
-  1. how to use and ESP 32 for reading pins
-  2. building a web page for a client (web browser, smartphone, smartTV) to connect to
-  3. sending data from the ESP to the client to update JUST changed data
-  4. sending data from the web page (like a slider or button press) to the ESP to tell the ESP to do something
-
-  If you are not familiar with HTML, CSS page styling, and javascript, be patient, these code platforms are
-  not intuitive and syntax is very inconsitent between platforms
-
-  I know of 4 ways to update a web page
-  1. send the whole page--very slow updates, causes ugly page redraws and is what you see in most examples
-  2. send XML data to the web page that will update just the changed data--fast updates but older method
-  3. JSON strings which are similar to XML but newer method
-  4. web sockets very very fast updates, but not sure all the library support is available for ESP's
-
-  I use XML here...
-
-  compile options
-  1. esp32 dev module
-  2. upload speed 921600
-  3. cpu speed 240 mhz
-  flash speed 80 mhz
-  flash mode qio
-  flash size 4mb
-  partition scheme default
-
-
-  NOTE if your ESP fails to program press the BOOT button during programm when the IDE is "looking for the ESP"
-
-  The MIT License (MIT)
-
-  code writen by Kris Kasprzak
-  
-  Permission is hereby granted, free of charge, to any person obtaining a copy of
-  this software and associated documentation files (the "Software"), to deal in
-  the Software without restriction, including without limitation the rights to
-  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-  the Software, and to permit persons to whom the Software is furnished to do so,
-  subject to the following conditions:
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-  FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-  On a personal note, if you develop an application or product using this code 
-  and make millions of dollars, I'm happy for you!
-
-*/
-
-#include <WiFi.h>         // standard library
-#include <WebServer.h>    // standard library
-#include "ControlPage.h"  // .h file that stores your html page code
+#include <WiFi.h>         
+#include <WebServer.h>    
 #include <FastLED.h>
+#include "ControlPage.h"  // .h file that stores your html page code
 
 // here you post web pages to your homes intranet which will make page debugging easier
 // as you just need to refresh the browser as opposed to reconnection to the web server
@@ -421,10 +369,6 @@ void setup() {
   // maybe disable watch dog timer 1 if needed
   //  disableCore1WDT();
 
-  // just an update to progress
-  Serial.println("starting server");
-
-  // if you have this #define USE_INTRANET,  you will connect to your home intranet, again makes debugging easier
 #ifdef USE_INTRANET
   WiFi.begin(LOCAL_SSID, LOCAL_PASS);
   while (WiFi.status() != WL_CONNECTED) {
@@ -435,9 +379,6 @@ void setup() {
   Actual_IP = WiFi.localIP();
 #endif
 
-  // if you don't have #define USE_INTRANET, here's where you will creat and access point
-  // an intranet with no internet connection. But Clients can connect to your intranet and see
-  // the web page you are about to serve up
 #ifndef USE_INTRANET
   WiFi.softAP(AP_SSID, AP_PASS);
   delay(100);
@@ -449,7 +390,6 @@ void setup() {
 
   printWifiStatus();
 
-
   // these calls will handle data coming back from your web page
   // this one is a page request, upon ESP getting / string the web page will be sent
   server.on("/", SendWebsite);
@@ -458,11 +398,6 @@ void setup() {
   // just parts of the web page
   server.on("/xml", SendXML);
 
-  // upon ESP getting /UPDATE_SLIDER string, ESP will execute the UpdateSlider function
-  // same notion for the following .on calls
-  // add as many as you need to process incoming strings from your web page
-  // as you can imagine you will need to code some javascript in your web page to send such strings
-  // this process will be documented in the SuperMon.h web page code
   server.on("/HomeScoreUp1", HomeScoreUp1);
   server.on("/HomeScoreReset", HomeScoreReset);
   server.on("/HomeScoreDown1", HomeScoreDown1);
@@ -494,14 +429,6 @@ void setup() {
 }
 
 void loop() {
-
-  // you main loop that measures, processes, runs code, etc.
-  // note that handling the "on" strings from the web page are NOT in the loop
-  // that processing is in individual functions all managed by the wifi lib
-
-  // in my example here every 50 ms, i measure some analog sensor data (my finger dragging over the pins
-  // and process accordingly
-  // analog input can be from temperature sensors, light sensors, digital pin sensors, etc.
   if ((millis() - BoardUpdate) >= 1000) {
     //Serial.println("Reading Sensors");
     BoardUpdate = millis();
@@ -517,15 +444,12 @@ void loop() {
       updateScoreboard();
   }
 
-  // no matter what you must call this handleClient repeatidly--otherwise the web page
-  // will not get instructions to do something
+  // call handleClient repeatedly--otherwise the web page
+  // will not get instructions
   server.handleClient();
 
 }
 
-
-// code to send the main web page
-// PAGE_MAIN is a large char defined in SuperMon.h
 void SendWebsite() {
 
   Serial.println("sending web page");
@@ -535,7 +459,6 @@ void SendWebsite() {
 }
 
 // code to send the main web page
-// I avoid string data types at all cost hence all the char mainipulation code
 void SendXML() {
   // Serial.println("sending xml");
 
@@ -555,9 +478,6 @@ void SendXML() {
   strcat(XML, buf);
 
   strcat(XML, "</Data>\n");
-  // wanna see what the XML code looks like?
-  // actually print it to the serial monitor and use some text editor to get the size
-  // then pad and adjust char XML[2048]; above
   // Serial.println(XML);
 
   // you may have to play with this value, big pages need more porcessing time, and hence
