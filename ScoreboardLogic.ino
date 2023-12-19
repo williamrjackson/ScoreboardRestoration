@@ -218,31 +218,31 @@ void updateIndicator(IndicatorElement el, bool value, CRGB colorOverride)
 
 //********************************************************
 int nPeriod = 1;
-int seconds = 0; 
+int nSeconds = 0; 
 int nHomeScore = 0;
 int nVisitorScore = 0;
+int nBonus = 0; // -1 home; 0 none; 1 visitors
+int nPos = 0; // 0 home; 1 visitors
 bool bTimeRunning = false;
-int bonus = 0; // -1 home; 0 none; 1 visitors
-int posession = 0; // 0 home; 1 visitors
 
 void updateScoreboard()
 {
   nHomeScore = constrain(nHomeScore, 0, 199);
   nVisitorScore = constrain(nVisitorScore, 0, 199);
   nPeriod = constrain(nPeriod, 0, 9);
-  seconds = constrain(seconds, 0, 3600);
-  int minutesCalc = seconds / 60;
-  int secondsCalc = seconds % 60;
+  nSeconds = constrain(nSeconds, 0, 3600);
+  int minutesCalc = nSeconds / 60;
+  int secondsCalc = nSeconds % 60;
   updateDigit(homeScore, nHomeScore);
   updateDigit(visitorScore, nVisitorScore);
   updateDigit(period, nPeriod);
   updateDigit(timeMinutes, minutesCalc);
   updateDigit(timeSeconds, secondsCalc);
 
-  updateIndicator(homePosession, posession == 0);
-  updateIndicator(visitorPosession, posession == 1);
-  updateIndicator(homeBonus, bonus == -1);
-  updateIndicator(visitorBonus, bonus == 1);
+  updateIndicator(homePosession, nPos == 0);
+  updateIndicator(visitorPosession, nPos == 1);
+  updateIndicator(homeBonus, nBonus == -1);
+  updateIndicator(visitorBonus, nBonus == 1);
 
   FastLED.show();
   server.send(200, "text/plain", ""); //Send web page
@@ -281,19 +281,19 @@ void VisitorScoreUp1() {
   server.send(200, "text/plain", ""); //Send web page
 }
 void HomeBonus() {
-  bonus = (bonus == -1) ? 0 : -1;
+  nBonus = (nBonus == -1) ? 0 : -1;
   server.send(200, "text/plain", ""); //Send web page
 }
 void HomePos() {
-  posession = 0;
+  nPos = 0;
   server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorPos() {
-  posession = 1;
+  nPos = 1;
   server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorBonus() {
-  bonus = (bonus == 1) ? 0 : 1;
+  nBonus = (nBonus == 1) ? 0 : 1;
   server.send(200, "text/plain", ""); //Send web page
 }
 void StartStopTimer() {
@@ -301,47 +301,47 @@ void StartStopTimer() {
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeDn1() {
-  seconds--;
+  nSeconds--;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeDn10() {
-  seconds-=10;
+  nSeconds-=10;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeDn60() {
-  seconds-=60;
+  nSeconds-=60;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeUp60() {
-  seconds+=60;
+  nSeconds+=60;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeUp10() {
-  seconds+=10;
+  nSeconds+=10;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeUp1() {
-  seconds++;
+  nSeconds++;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet12() {
-  seconds = 720;
+  nSeconds = 720;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet10() {
-  seconds = 600;
+  nSeconds = 600;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet0() {
-  seconds = 0;
+  nSeconds = 0;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet2() {
-  seconds = 120;
+  nSeconds = 120;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet20() {
-  seconds = 1200;
+  nSeconds = 1200;
   server.send(200, "text/plain", ""); //Send web page
 }
 void Buzzer() {
@@ -434,8 +434,8 @@ void loop() {
     BoardUpdate = millis();
     if (bTimeRunning)
       {
-        seconds--;
-        if (seconds == 0)
+        nSeconds--;
+        if (nSeconds == 0)
         {
           bTimeRunning = false;
           Buzzer();
@@ -463,8 +463,7 @@ void SendXML() {
   // Serial.println("sending xml");
 
   strcpy(XML, "<?xml version = '1.0'?>\n<Data>\n");
-
-  sprintf(buf, "<Time>%d:%d</Time>\n", seconds / 60, seconds % 60);
+  sprintf(buf, "<Time>%d:%d</Time>\n", nSeconds / 60, nSeconds % 60);
   strcat(XML, buf);
   sprintf(buf, "<HomeScore>%d</HomeScore>\n", nHomeScore);
   strcat(XML, buf);
@@ -476,15 +475,12 @@ void SendXML() {
   strcat(XML, buf);
   sprintf(buf, "<Bonus>%d</Bonus>\n", nBonus);
   strcat(XML, buf);
-
   strcat(XML, "</Data>\n");
   // Serial.println(XML);
 
   // you may have to play with this value, big pages need more porcessing time, and hence
   // a longer timeout that 200 ms
   server.send(200, "text/xml", XML);
-
-
 }
 
 // I think I got this code from the wifi example
