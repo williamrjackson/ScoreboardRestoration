@@ -3,6 +3,7 @@
 
 
 #include <WiFi.h>         
+#include <ESPmDNS.h>
 #include <WebServer.h>    
 #include <FastLED.h>
 #include "ControlPage.h"  // .h file that stores your html page code
@@ -386,6 +387,19 @@ void setup() {
   delay(100);
   Actual_IP = WiFi.softAPIP();
   Serial.print("IP address: "); Serial.println(Actual_IP);
+  // Set up mDNS responder:
+  // - first argument is the domain name, in this example
+  //   the fully-qualified domain name is "scoreboard.local"
+  // - second argument is the IP address to advertise
+  //   we send our IP address on the WiFi network
+  if (!MDNS.begin("scoreboard")) {
+      Serial.println("Error setting up MDNS responder!");
+      while(1) {
+          delay(1000);
+      }
+  }
+  Serial.println("mDNS responder started");
+
 #endif
 
   printWifiStatus();
