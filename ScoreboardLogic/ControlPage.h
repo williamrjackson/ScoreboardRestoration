@@ -85,14 +85,14 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
           <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Bonus</span></div>
         </td>
         <td style="width: 19.9557%;" class="cell" colspan="2" rowspan="3">
-          <div style="text-align: center;"><span id="homeScoreDisp" style='font-size: 72px; font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; color: rgb(235, 107, 86);'>109</span></div>
+          <div style="text-align: center;"><span id="homeScoreDisp" style='font-size: 72px; font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; color: rgb(235, 107, 86);'>0</span></div>
         </td>
         <td class="cell"><br></td>
         <td class="cell"><br></td>
         <td class="cell"><br></td>
         <td class="cell"><br></td>
         <td style="width: 19.9557%;" class="cell" colspan="2" rowspan="3">
-          <div style="text-align: center;"><span id="visitorScoreDisp" style="font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;"><span style="font-size: 72px; color: rgb(235, 107, 86);">90</span></span></div>
+          <div style="text-align: center;"><span id="visitorScoreDisp" style='font-size: 72px; font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; color: rgb(235, 107, 86);'>0</span></div>
         </td>
         <td class="cell">
           <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Bonus</span></div>
@@ -144,7 +144,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
     <tbody>
       <tr>
         <td><button type="button" class="btn" id="HomeScoreDown1" onclick="HomeScoreDown1()">Score - 1</button></td>
-        <td><button type="button" class="btn" id="HomeScoreReset" onclick="VisitorScoreReset()">Reset 0</button></td>
+        <td><button type="button" class="btn" id="HomeScoreReset" onclick="HomeScoreReset()">Reset 0</button></td>
         <td><button type="button" class="btn" id="HomeUpDown1" onclick="HomeScoreUp1()">Score + 1</button></td>
         <td><br></td>
         <td><button type="button" class="btn" id="PeriodUp" onclick="PeriodUp()">Period +</button></td>
@@ -423,12 +423,12 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       xmldoc = xmlResponse.getElementsByTagName("Pos");
       message = xmldoc[0].firstChild.nodeValue;
       if (message == 0){
-        document.getElementById("visitorPosessionDisp").style.backgroundColor="orange"; 
-        document.getElementById("homePosessionDisp").style.backgroundColor="gray";
-      }
-      else {
         document.getElementById("visitorPosessionDisp").style.backgroundColor="gray"; 
         document.getElementById("homePosessionDisp").style.backgroundColor="orange";
+      }
+      else {
+        document.getElementById("visitorPosessionDisp").style.backgroundColor="orange"; 
+        document.getElementById("homePosessionDisp").style.backgroundColor="gray";
       }
       xmldoc = xmlResponse.getElementsByTagName("Bonus");
       message = xmldoc[0].firstChild.nodeValue;
@@ -437,12 +437,20 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         document.getElementById("visitorBonusDisp").style.backgroundColor="gray"; 
       }
       else if (message == 1){
-        document.getElementById("homePosessionDisp").style.backgroundColor="gray";
-        document.getElementById("visitorPosessionDisp").style.backgroundColor="yellow"; 
+        document.getElementById("homeBonusDisp").style.backgroundColor="gray";
+        document.getElementById("visitorBonusDisp").style.backgroundColor="yellow"; 
       }
       else {
         document.getElementById("visitorBonusDisp").style.backgroundColor="gray"; 
         document.getElementById("homeBonusDisp").style.backgroundColor="gray";
+      }
+      xmldoc = xmlResponse.getElementsByTagName("TimerRunning");
+      message = xmldoc[0].firstChild.nodeValue;
+      if (message == 1){
+        document.getElementById("StartStopTimer").innerHTML="Stop Timer";
+      }
+      else {
+        document.getElementById("StartStopTimer").innerHTML="Run Timer";
       }
     }
   

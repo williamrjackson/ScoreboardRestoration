@@ -4,24 +4,19 @@
 
 #include <WiFi.h>         
 #include <ESPmDNS.h>
+#include <DNSServer.h>
 #include <WebServer.h>    
 #include <FastLED.h>
 #include "ControlPage.h"  // .h file that stores your html page code
 
-// here you post web pages to your homes intranet which will make page debugging easier
-// as you just need to refresh the browser as opposed to reconnection to the web server
-#define USE_INTRANET
-
-// replace this with your homes intranet connect parameters
-#define LOCAL_SSID "SSID"
-#define LOCAL_PASS "PASSWORD"
-
-// once  you are read to go live these settings are what you client will connect to
-#define AP_SSID "KeverianScoreboard"
-#define AP_PASS "Karate*"
+#define AP_SSID "Keverian Scoreboard"
+#define AP_PASS "PASSSWORD"
 
 #define NUM_LEDS 212
-#define DATA_PIN 6
+#define DATA_PIN 16
+
+const byte DNS_PORT = 53;
+DNSServer dnsServer;
 
 uint32_t BoardUpdate = 0;
 
@@ -35,9 +30,11 @@ char buf[32];
 IPAddress Actual_IP;
 
 // definitions of your desired intranet created by the ESP32
-IPAddress PageIP(192, 168, 1, 1);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 255, 0);
+IPAddress apIP(172, 217, 28, 1);
+
+// IPAddress PageIP(192, 168, 1, 1);
+// IPAddress gateway(192, 168, 1, 1);
+// IPAddress subnet(255, 255, 255, 0);
 IPAddress ip;
 
 // gotta create a server
@@ -151,11 +148,11 @@ CRGB leds[NUM_LEDS];
 CRGB onColor = CRGB::White;
 CRGB offColor = CRGB::Black;
 
-void stringToDigit(char* str, int ledStartIndex)
+void stringToDigit(const char* str, int ledStartIndex)
 {
   stringToDigit(str, ledStartIndex, onColor);
 }
-void stringToDigit(char* str, int ledStartIndex, CRGB colorOverride)
+void stringToDigit(const char* str, int ledStartIndex, CRGB colorOverride)
 {
   leds[ledStartIndex]    = str[0]  == '#' ? colorOverride : offColor;
   leds[ledStartIndex+1]  = str[1]  == '#' ? colorOverride : offColor;
@@ -250,18 +247,22 @@ void updateScoreboard()
 }
 
 void HomeScoreUp1() {
+Serial.println("HomeScoreUp1");
   nHomeScore++;
   server.send(200, "text/plain", ""); //Send web page
 }
 void HomeScoreReset() {
+  Serial.println("HomeScoreReset");
   nHomeScore = 0;
   server.send(200, "text/plain", ""); //Send web page
 }
 void HomeScoreDown1() {
-    nHomeScore--;
+Serial.println("HomeScoreDown1");
+  nHomeScore--;
   server.send(200, "text/plain", ""); //Send web page
 }
 void PeriodUp() {
+Serial.println("PeriodUp");
   nPeriod++;
   if (nPeriod > 4)
   {
@@ -270,78 +271,97 @@ void PeriodUp() {
   server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorScoreDown1() {
+Serial.println("VisitorScoreDown1");
   nVisitorScore--;
   server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorScoreReset() {
+  Serial.println("VisitorScoreReset");
   nVisitorScore = 0;
   server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorScoreUp1() {
+Serial.println("VisitorScoreUp1");
   nVisitorScore++;
   server.send(200, "text/plain", ""); //Send web page
 }
 void HomeBonus() {
+  Serial.println("HomeBonus");
   nBonus = (nBonus == -1) ? 0 : -1;
   server.send(200, "text/plain", ""); //Send web page
 }
 void HomePos() {
+  Serial.println("HomePos");
   nPos = 0;
   server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorPos() {
+  Serial.println("VisitorPos");
   nPos = 1;
   server.send(200, "text/plain", ""); //Send web page
 }
 void VisitorBonus() {
+  Serial.println("VisitorBonus");
   nBonus = (nBonus == 1) ? 0 : 1;
   server.send(200, "text/plain", ""); //Send web page
 }
 void StartStopTimer() {
+  Serial.println("StartStopTimer");
   bTimeRunning = !bTimeRunning;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeDn1() {
+Serial.println("TimeDn1");
   nSeconds--;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeDn10() {
+  Serial.println("TimeDn10");
   nSeconds-=10;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeDn60() {
+  Serial.println("TimeDn60");
   nSeconds-=60;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeUp60() {
+  Serial.println("TimeUp60");
   nSeconds+=60;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeUp10() {
+  Serial.println("TimeUp10");
   nSeconds+=10;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimeUp1() {
+Serial.println("TimeUp1");
   nSeconds++;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet12() {
+  Serial.println("TimerSet12");
   nSeconds = 720;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet10() {
+  Serial.println("TimerSet10");
   nSeconds = 600;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet0() {
+  Serial.println("TimerSet0");
   nSeconds = 0;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet2() {
+  Serial.println("TimerSet2");
   nSeconds = 120;
   server.send(200, "text/plain", ""); //Send web page
 }
 void TimerSet20() {
+  Serial.println("TimerSet20");
   nSeconds = 1200;
   server.send(200, "text/plain", ""); //Send web page
 }
@@ -351,15 +371,17 @@ void Buzzer() {
   server.send(200, "text/plain", ""); //Send web page
 }
 
+void handleNotFound() {
+  server.send(200, "text/plain", ""); //Send web page
+}
 
 void setup() {
 
   // standard stuff here
+//  pinMode(DATA_PIN, OUTPUT);
   Serial.begin(9600);
 
   FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
-
-  pinMode(DATA_PIN, OUTPUT);
 
   // if your web page or XML are large, you may not get a call back from the web page
   // and the ESP will think something has locked up and reboot the ESP
@@ -370,28 +392,18 @@ void setup() {
   // maybe disable watch dog timer 1 if needed
   //  disableCore1WDT();
 
-#ifdef USE_INTRANET
-  WiFi.begin(LOCAL_SSID, LOCAL_PASS);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.print("IP address: "); Serial.println(WiFi.localIP());
-  Actual_IP = WiFi.localIP();
-#endif
-
-#ifndef USE_INTRANET
-  WiFi.softAP(AP_SSID, AP_PASS);
+  WiFi.mode(WIFI_AP);
+  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
   delay(100);
-  WiFi.softAPConfig(PageIP, gateway, subnet);
+  WiFi.softAP(AP_SSID, AP_PASS);
+  // WiFi.softAPConfig(PageIP, gateway, subnet);
   delay(100);
   Actual_IP = WiFi.softAPIP();
   Serial.print("IP address: "); Serial.println(Actual_IP);
+  delay(100);
+  dnsServer.start(DNS_PORT, "*", apIP);
   // Set up mDNS responder:
-  // - first argument is the domain name, in this example
   //   the fully-qualified domain name is "scoreboard.local"
-  // - second argument is the IP address to advertise
-  //   we send our IP address on the WiFi network
   if (!MDNS.begin("scoreboard")) {
       Serial.println("Error setting up MDNS responder!");
       while(1) {
@@ -400,7 +412,6 @@ void setup() {
   }
   Serial.println("mDNS responder started");
 
-#endif
 
   printWifiStatus();
 
@@ -437,9 +448,12 @@ void setup() {
   server.on("/TimerSet20", TimerSet20);
   server.on("/Buzzer", Buzzer);
 
+  // replay to all requests with same HTML
+  server.onNotFound([]() {
+      server.send(200, "text/html", PAGE_MAIN);
+  });
   // finally begin the server
   server.begin();
-
 }
 
 void loop() {
@@ -461,7 +475,7 @@ void loop() {
   // call handleClient repeatedly--otherwise the web page
   // will not get instructions
   server.handleClient();
-
+  dnsServer.processNextRequest();
 }
 
 void SendWebsite() {
@@ -477,7 +491,7 @@ void SendXML() {
   // Serial.println("sending xml");
 
   strcpy(XML, "<?xml version = '1.0'?>\n<Data>\n");
-  sprintf(buf, "<Time>%d:%d</Time>\n", nSeconds / 60, nSeconds % 60);
+  sprintf(buf, "<Time>%02d:%02d</Time>\n", nSeconds / 60, nSeconds % 60);
   strcat(XML, buf);
   sprintf(buf, "<HomeScore>%d</HomeScore>\n", nHomeScore);
   strcat(XML, buf);
@@ -488,6 +502,8 @@ void SendXML() {
   sprintf(buf, "<Pos>%d</Pos>\n", nPos);
   strcat(XML, buf);
   sprintf(buf, "<Bonus>%d</Bonus>\n", nBonus);
+  strcat(XML, buf);
+  sprintf(buf, "<TimerRunning>%d</TimerRunning>\n", bTimeRunning ? 1 : 0);
   strcat(XML, buf);
   strcat(XML, "</Data>\n");
   // Serial.println(XML);
@@ -503,7 +519,7 @@ void printWifiStatus() {
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
-
+  Serial.print("["); Serial.print(AP_SSID); Serial.println("]");
   // print your WiFi shield's IP address:
   ip = WiFi.localIP();
   Serial.print("IP Address: ");
