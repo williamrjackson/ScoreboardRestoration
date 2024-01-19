@@ -1,7 +1,6 @@
 // Control stuff borrowed from https://github.com/KrisKasprzak/ESP32_WebPage
 // https://www.youtube.com/watch?v=pL3dhGtmcMY
 
-
 #include <WiFi.h>         
 #include <ESPmDNS.h>
 #include <DNSServer.h>
@@ -382,10 +381,12 @@ void TimerSet20() {
   server.send(200, "text/plain", "");
 }
 void Buzzer() {
-  bBuzzing = true;
-  BuzzerStart = millis();
-
-  server.send(200, "text/plain", "");
+  if (!bBuzzing)
+  {
+    bBuzzing = true;
+    BuzzerStart = millis();
+    server.send(200, "text/plain", "");
+  }
 }
 
 void handleNotFound() {

@@ -6,16 +6,27 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
 <title>Keverian Scoreboard Control</title>
 
   <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+    td {
+      text-align: center;
+      vertical-align: middle;
+    }
     .btn {
-      background-color: #444444;
-      border: none;
+      background-color: #272727;
+      border: 5px solid rgb(0, 42, 34);
+      border-radius: 10px; /* Adjust this value as needed */
       color: white;
-      padding: 10px 20px;
       text-align: center;
       text-decoration: none;
       display: inline-block;
-      font-size: 16px;
+      font-weight: bold;
+      font-size: 2vw; 
       margin: 4px 2px;
+      height: 100%;
+      width: 100%;
       cursor: pointer;
     }
     .cell {
@@ -40,14 +51,14 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
   </style>
 
   <body style="background-color: #efefef" onload="process()">
-    <table style="width: 100%; border-collapse: collapse; border: none rgb(0, 0, 0);">
+    <table style="width: 97.5vw; height: 20vh; border-collapse: collapse; border: none;">
     <tbody>
       <tr>
         <td class="cell"><br></td>
         <td class="cell"><br></td>
         <td class="cell"><br></td>
         <td class="cell"><br></td>
-        <td style="width: 38.4331%;" class="cell" colspan="2">
+        <td class="cell" colspan="2">
           <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Timer</span></div>
         </td>
         <td class="cell"><br></td>
@@ -60,7 +71,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         <td class="cell"><br></td>
         <td class="cell"><br></td>
         <td class="cell"><br></td>
-        <td style="width: 19.9557%;" class="cell" colspan="2" rowspan="2">
+        <td class="cell" colspan="2" rowspan="2">
           <div style="text-align: center;"><span id= "timeDisp" style='font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; font-size: 60px; color: rgb(247, 218, 100);'>02:00</span></div>
         </td>
         <td class="cell"><br></td>
@@ -70,12 +81,12 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       </tr>
       <tr>
         <td class="cell"><br></td>
-        <td style="width: 19.9557%;" class="cell" colspan="2">
+        <td class="cell" colspan="2">
           <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Home Score</span></div>
         </td>
         <td class="cell"><br></td>
         <td class="cell"><br></td>
-        <td style="width: 19.9557%;" class="cell" colspan="2">
+        <td class="cell" colspan="2">
           <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Visitor Score</span></div>
         </td>
         <td class="cell"><br></td>
@@ -84,14 +95,14 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         <td class="cell">
           <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Bonus</span></div>
         </td>
-        <td style="width: 19.9557%;" class="cell" colspan="2" rowspan="3">
+        <td class="cell" colspan="2" rowspan="3">
           <div style="text-align: center;"><span id="homeScoreDisp" style='font-size: 72px; font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; color: rgb(235, 107, 86);'>0</span></div>
         </td>
         <td class="cell"><br></td>
         <td class="cell"><br></td>
         <td class="cell"><br></td>
         <td class="cell"><br></td>
-        <td style="width: 19.9557%;" class="cell" colspan="2" rowspan="3">
+        <td class="cell" colspan="2" rowspan="3">
           <div style="text-align: center;"><span id="visitorScoreDisp" style='font-size: 72px; font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; color: rgb(235, 107, 86);'>0</span></div>
         </td>
         <td class="cell">
@@ -105,7 +116,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         <td class="cell">
           <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Posession</span></div>
         </td>
-        <td style="width: 19.9557%;" class="cell" colspan="2">
+        <td class="cell" colspan="2">
           <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Period</span></div>
         </td>
         <td class="cell">
@@ -120,7 +131,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         <td class="cell">
           <div id="homePosessionDisp" class="dot"><br>
         </td>
-        <td style="width: 19.9557%;" class="cell" colspan="2" rowspan="2">
+        <td class="cell" colspan="2" rowspan="2">
           <div style="text-align: center;"><span id="periodDisp" style='font-size: 48px; font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; color: rgb(97, 189, 109);'>4</span></div>
         </td>
         <td class="cell">
@@ -140,84 +151,75 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       </tr>
     </tbody>
   </table>
-  <table style="width: 100%;">
+  <table style="width: 97.5vw; height: 70vh; border-collapse: collapse;">
     <tbody>
       <tr>
-        <td><button type="button" class="btn" id="HomeScoreUp2" onclick="HomeScoreUp2()">Score<br>+ 2</button></td>
+        <td><button type="button" class="btn" id="HomeScoreUp2" style="color: pink" onclick="HomeScoreUp2()">Score<br>+ 2</button></td>
         <td></td>
-        <td><button type="button" class="btn" id="HomeScoreUp3" onclick="HomeScoreUp3()">Score<br>+ 3</button></td>
-        <td><br></td>
-        <td><button type="button" class="btn" id="PeriodUp" onclick="PeriodUp()">Period<br>+</button></td>
-        <td><br></td>
-        <td><button type="button" class="btn" id="VisitorScoreUp2" onclick="VisitorScoreUp2()">Score<br>+ 2</button></td>
+        <td><button type="button" class="btn" id="HomeScoreUp3" style="color: pink" onclick="HomeScoreUp3()">Score<br>+ 3</button></td>
+        <td><button type="button" class="btn" id="PeriodUp" style="color: rgb(192, 255, 239); height: 90%; width:90%;" onclick="PeriodUp()">Period<br>+</button></td>
+        <td><button type="button" class="btn" id="VisitorScoreUp2" style="color: pink" onclick="VisitorScoreUp2()">Score<br>+ 2</button></td>
         <td></td>
-        <td><button type="button" class="btn" id="VisitorScoreUp3" onclick="VisitorScoreUp1()">Score<br>+ 3</button></td>
+        <td><button type="button" class="btn" id="VisitorScoreUp3" style="color: pink" onclick="VisitorScoreUp1()">Score<br>+ 3</button></td>
       </tr>
       <tr>
-        <td><button type="button" class="btn" id="HomeScoreDown1" onclick="HomeScoreDown1()">Score<br> - 1</button></td>
-        <td><button type="button" class="btn" id="HomeScoreReset" onclick="HomeScoreReset()">Reset<br>0</button></td>
-        <td><button type="button" class="btn" id="HomeScoreUp1" onclick="HomeScoreUp1()">Score<br>+ 1</button></td>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
-        <td><button type="button" class="btn" id="VisitorScoreDown1" onclick="VisitorScoreDown1()">Score<br>- 1</button></td>
-        <td><button type="button" class="btn" id="VisitorScoreReset" onclick="VisitorScoreReset()">Reset<br>0</button></td>
-        <td><button type="button" class="btn" id="VisitorScoreUp1" onclick="VisitorScoreUp1()">Score<br>+ 1</button></td>
+        <td><button type="button" class="btn" id="HomeScoreDown1" style="color: pink" onclick="HomeScoreDown1()">Score<br> - 1</button></td>
+        <td><button type="button" class="btn" id="HomeScoreReset" style="color: pink" onclick="HomeScoreReset()">Reset<br>0</button></td>
+        <td><button type="button" class="btn" id="HomeScoreUp1" style="color: pink" onclick="HomeScoreUp1()">Score<br>+ 1</button></td>
+        <td></td>
+        <td><button type="button" class="btn" id="VisitorScoreDown1" style="color: pink" onclick="VisitorScoreDown1()">Score<br>- 1</button></td>
+        <td><button type="button" class="btn" id="VisitorScoreReset" style="color: pink" onclick="VisitorScoreReset()">Reset<br>0</button></td>
+        <td><button type="button" class="btn" id="VisitorScoreUp1" style="color: pink" onclick="VisitorScoreUp1()">Score<br>+ 1</button></td>
       </tr>
       <tr>
-        <td><button type="button" class="btn" id="HomeBonus" onclick="HomeBonus()">Bonus</button></td>
-        <td><button type="button" class="btn" id="HomePos" onclick="HomePos()">Pos</button></td>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
-        <td><button type="button" class="btn" id="VisitorPos" onclick="VisitorPos()">Pos</button></td>
-        <td><button type="button" class="btn" id="VisitorBonus" onclick="VisitorBonus()">Bonus</button></td>
+        <td colspan="2"><button type="button" class="btn" id="HomePos" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="HomePos()">Pos</button></td>
+        <!-- <td></td> -->
+        <td><button type="button" class="btn" id="HomeBonus" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="HomeBonus()">Bonus</button></td>
+        <td></td>
+        <!-- <td></td> -->
+        <td><button type="button" class="btn" id="VisitorBonus" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="VisitorBonus()">Bonus</button></td>
+        <!-- <td></td> -->
+        <td colspan="2"><button type="button" class="btn" id="VisitorPos" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="VisitorPos()">Pos</button></td>
       </tr>
       <tr>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
-        <td><button type="button" class="btn" id="StartStopTimer" onclick="StartStopTimer()">Run<br>Timer</button></td>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
+        <td></td>
+        <td></td>
+        <!-- <td></td> -->
+        <td colspan="3"><button type="button" class="btn" id="StartStopTimer" style="color: rgb(247, 218, 100) "StartStopTimer()">Run<br>Timer</button></td>
+        <!-- <td></td> -->
+        <td></td>
+        <td></td>
+        <td></td>
       </tr>
       <tr>
-        <td><br></td>
         <td><button type="button" class="btn" id="TimeDn1" onclick="TimeDn1()">-1</button></td>
         <td><button type="button" class="btn" id="TimeDn10" onclick="TimeDn10()">-10</button></td>
         <td><button type="button" class="btn" id="TimeDn60" onclick="TimeDn60()">-60</button></td>
-        <td><br></td>
+        <td><button type="button" class="btn" id="TimerSet0"  style="height: 90%; width:90%;" onclick="TimerSet0()">Reset<br>Timer</button></td>
         <td><button type="button" class="btn" id="TimeUp60" onclick="TimeUp60()">+60</button></td>
         <td><button type="button" class="btn" id="TimeUp10" onclick="TimeUp10()">+10</button></td>
         <td><button type="button" class="btn" id="TimeUp1" onclick="TimeUp1()">+1</button></td>
-        <td><br></td>
+        <td></td>
       </tr>
       <tr>
-        <td><br></td>
-        <td><br></td>
-        <td><button type="button" class="btn" id="TimerSet12" onclick="TimerSet12()">12:00</button></td>
-        <td><button type="button" class="btn" id="TimerSet10" onclick="TimerSet10()">10:00</button></td>
-        <td><button type="button" class="btn" id="TimerSet0" onclick="TimerSet0()">00:00</button></td>
-        <td><button type="button" class="btn" id="TimerSet2" onclick="TimerSet2()">02:00</button></td>
-        <td><button type="button" class="btn" id="TimerSet20" onclick="TimerSet20()">20:00</button></td>
-        <td><br></td>
-        <td><br></td>
+        <td><button type="button" class="btn" id="TimerSet12" onclick="TimerSet12()">Set<br>12:00</button></td>
+        <td><button type="button" class="btn" id="TimerSet10" onclick="TimerSet10()">Set<br>10:00</button></td>
+        <td></td>
+        <td><button type="button" class="btn" id="Buzzer" style="height: 90%; width:90%;" onclick="Buzzer()">Buzzer</button></td>
+        <td></td>
+        <td><button type="button" class="btn" id="TimerSet2" onclick="TimerSet2()">Set<br>2:00</button></td>
+        <td><button type="button" class="btn" id="TimerSet20" onclick="TimerSet20()">Set<br>20:00</button></td>
+        <td></td>
       </tr>
       <tr>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
-        <td><button type="button" class="btn" id="Buzzer" onclick="Buzzer()">Buzzer</button></td>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
-        <td><br></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
       </tr>
     </tbody>
   </table>
