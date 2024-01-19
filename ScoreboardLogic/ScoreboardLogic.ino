@@ -13,15 +13,15 @@
 #define AP_PASS "PASSSWORD"
 
 #define NUM_LEDS 212
-#define DATA_PIN 16
+#define DATA_PIN 3
 
 const byte DNS_PORT = 53;
 DNSServer dnsServer;
 
-uint32_t BoardUpdate = 0;
+uint32_t BoardUpdate = 1000;
 
 // the XML array size needs to be bigger that your maximum expected size. 2048 is way too big for this example
-char XML[2048];
+char XML[128];
 
 // just some buffer holder for char operations
 char buf[32];
@@ -134,10 +134,10 @@ struct IndicatorElement
 };
 
 DigitElement homeScore = {0, true, 2};
-DigitElement visitorScore = {127, true, 2};
-DigitElement timeMinutes = {47, false, 2};
-DigitElement timeSeconds = {87, false, 2};
-DigitElement period = {183, false, 1};
+DigitElement timeMinutes = {50, false, 2};
+DigitElement timeSeconds = {93, false, 2};
+DigitElement visitorScore = {136, true, 2};
+DigitElement period = {186, false, 1};
 
 IndicatorElement homeBonus = {209, 3};
 IndicatorElement visitorBonus = {174, 3};
@@ -148,32 +148,28 @@ CRGB leds[NUM_LEDS];
 CRGB onColor = CRGB::White;
 CRGB offColor = CRGB::Black;
 
-void stringToDigit(const char* str, int ledStartIndex)
-{
-  stringToDigit(str, ledStartIndex, onColor);
-}
 void stringToDigit(const char* str, int ledStartIndex, CRGB colorOverride)
 {
-  leds[ledStartIndex]    = str[0]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+1]  = str[1]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+2]  = str[2]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+3]  = str[3]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+4]  = str[7]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+5]  = str[4]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+6]  = str[8]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+7]  = str[11] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+8]  = str[15] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+9]  = str[14] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+10] = str[13] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+11] = str[12] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+12] = str[16] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+13] = str[19] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+14] = str[23] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+15] = str[20] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+16] = str[24] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+17] = str[25] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+18] = str[26] == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+19] = str[27] == '#' ? colorOverride : offColor;
+  leds[ledStartIndex]    = str[0]   == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+1]  = str[4]   == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+2]  = str[8]   == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+3]  = str[12]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+4]  = str[16]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+5]  = str[20]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+6]  = str[24]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+7]  = str[25]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+8]  = str[26]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+9]  = str[27]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+10] = str[23]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+11] = str[19]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+12] = str[15]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+13] = str[11]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+14] = str[7]   == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+15] = str[3]   == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+16] = str[2]   == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+17] = str[1]   == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+19] = str[13]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex+20] = str[14]  == '#' ? colorOverride : offColor;
 }
 
 //*****************************************************
@@ -198,11 +194,12 @@ void updateDigit(DigitElement el, int value, CRGB colorOverride)
   {
     int tensIndex = (value / 10) % 10;
     stringToDigit(numberConfigs[tensIndex], currentRoot, colorOverride);
-    currentRoot += 20;
+    currentRoot += 22;
   }
   int onesIndex = (value % 10);
   stringToDigit(numberConfigs[onesIndex], currentRoot, colorOverride);
 }
+
 void updateIndicator(IndicatorElement el, bool value)
 {
   updateIndicator(el, value, onColor);
@@ -225,22 +222,27 @@ bool bTimeRunning = false;
 
 void updateScoreboard()
 {
+//  Serial.println("Update");
   nHomeScore = constrain(nHomeScore, 0, 199);
   nVisitorScore = constrain(nVisitorScore, 0, 199);
   nPeriod = constrain(nPeriod, 0, 9);
   nSeconds = constrain(nSeconds, 0, 3600);
   int minutesCalc = nSeconds / 60;
   int secondsCalc = nSeconds % 60;
-  updateDigit(homeScore, nHomeScore);
-  updateDigit(visitorScore, nVisitorScore);
-  updateDigit(period, nPeriod);
-  updateDigit(timeMinutes, minutesCalc);
-  updateDigit(timeSeconds, secondsCalc);
-
-  updateIndicator(homePosession, nPos == 0);
-  updateIndicator(visitorPosession, nPos == 1);
-  updateIndicator(homeBonus, nBonus == -1);
-  updateIndicator(visitorBonus, nBonus == 1);
+//  for (int i = 0; i < 7; i++)
+//  {
+//    leds[i] = (i < nHomeScore) ? onColor : offColor;
+//  }
+  updateDigit(homeScore, nHomeScore, CRGB::Red);
+  updateDigit(visitorScore, nVisitorScore, CRGB::Red);
+  updateDigit(timeMinutes, minutesCalc, CRGB::Yellow);
+  updateDigit(timeSeconds, secondsCalc, CRGB::Yellow);
+  updateDigit(period, nPeriod, CRGB::Green);
+//
+//  updateIndicator(homePosession, nPos == 0);
+//  updateIndicator(visitorPosession, nPos == 1);
+//  updateIndicator(homeBonus, nBonus == -1);
+//  updateIndicator(visitorBonus, nBonus == 1);
 
   FastLED.show();
   server.send(200, "text/plain", ""); //Send web page
@@ -378,10 +380,9 @@ void handleNotFound() {
 void setup() {
 
   // standard stuff here
-//  pinMode(DATA_PIN, OUTPUT);
   Serial.begin(9600);
 
-  FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.addLeds<WS2812B, DATA_PIN, BGR>(leds, NUM_LEDS);
 
   // if your web page or XML are large, you may not get a call back from the web page
   // and the ESP will think something has locked up and reboot the ESP
@@ -458,7 +459,6 @@ void setup() {
 
 void loop() {
   if ((millis() - BoardUpdate) >= 1000) {
-    //Serial.println("Reading Sensors");
     BoardUpdate = millis();
     if (bTimeRunning)
       {
