@@ -216,7 +216,8 @@ int nPeriod = 1;
 int nSeconds = 0; 
 int nHomeScore = 0;
 int nVisitorScore = 0;
-int nBonus = 0; // -1 home; 0 none; 1 visitors
+bool bBonusHome = false;
+bool bBonusVisitor = false;
 int nPos = 0; // 0 home; 1 visitors
 bool bTimeRunning = false;
 
@@ -241,8 +242,8 @@ void updateScoreboard()
 //
 //  updateIndicator(homePosession, nPos == 0);
 //  updateIndicator(visitorPosession, nPos == 1);
-//  updateIndicator(homeBonus, nBonus == -1);
-//  updateIndicator(visitorBonus, nBonus == 1);
+//  updateIndicator(homeBonus, bBonusHome == -1);
+//  updateIndicator(visitorBonus, bBonusVisitor);
 
   FastLED.show();
   server.send(200, "text/plain", ""); //Send web page
@@ -251,6 +252,16 @@ void updateScoreboard()
 void HomeScoreUp1() {
 Serial.println("HomeScoreUp1");
   nHomeScore++;
+  server.send(200, "text/plain", ""); //Send web page
+}
+void HomeScoreUp2() {
+Serial.println("HomeScoreUp2");
+  nHomeScore += 2;
+  server.send(200, "text/plain", ""); //Send web page
+}
+void HomeScoreUp3() {
+Serial.println("HomeScoreUp3");
+  nHomeScore += 3;
   server.send(200, "text/plain", ""); //Send web page
 }
 void HomeScoreReset() {
@@ -266,7 +277,7 @@ Serial.println("HomeScoreDown1");
 void PeriodUp() {
 Serial.println("PeriodUp");
   nPeriod++;
-  if (nPeriod > 4)
+  if (nPeriod > 6)
   {
     nPeriod = 1;
   }
@@ -287,9 +298,19 @@ Serial.println("VisitorScoreUp1");
   nVisitorScore++;
   server.send(200, "text/plain", ""); //Send web page
 }
+void VisitorScoreUp2() {
+Serial.println("VisitorScoreUp2");
+  nVisitorScore += 2;
+  server.send(200, "text/plain", ""); //Send web page
+}
+void VisitorScoreUp3() {
+Serial.println("VisitorScoreUp3");
+  nVisitorScore += 3;
+  server.send(200, "text/plain", ""); //Send web page
+}
 void HomeBonus() {
   Serial.println("HomeBonus");
-  nBonus = (nBonus == -1) ? 0 : -1;
+  bBonusHome = !bBonusHome;
   server.send(200, "text/plain", ""); //Send web page
 }
 void HomePos() {
@@ -304,7 +325,7 @@ void VisitorPos() {
 }
 void VisitorBonus() {
   Serial.println("VisitorBonus");
-  nBonus = (nBonus == 1) ? 0 : 1;
+  bBonusVisitor = !bBonusVisitor;
   server.send(200, "text/plain", ""); //Send web page
 }
 void StartStopTimer() {
@@ -425,12 +446,16 @@ void setup() {
   server.on("/xml", SendXML);
 
   server.on("/HomeScoreUp1", HomeScoreUp1);
+  server.on("/HomeScoreUp2", HomeScoreUp2);
+  server.on("/HomeScoreUp3", HomeScoreUp3);
   server.on("/HomeScoreReset", HomeScoreReset);
   server.on("/HomeScoreDown1", HomeScoreDown1);
   server.on("/PeriodUp", PeriodUp);
   server.on("/VisitorScoreDown1", VisitorScoreDown1);
   server.on("/VisitorScoreReset", VisitorScoreReset);
   server.on("/VisitorScoreUp1", VisitorScoreUp1);
+  server.on("/VisitorScoreUp2", VisitorScoreUp2);
+  server.on("/VisitorScoreUp3", VisitorScoreUp3);
   server.on("/HomeBonus", HomeBonus);
   server.on("/HomePos", HomePos);
   server.on("/VisitorPos", VisitorPos);
@@ -501,7 +526,9 @@ void SendXML() {
   strcat(XML, buf);
   sprintf(buf, "<Pos>%d</Pos>\n", nPos);
   strcat(XML, buf);
-  sprintf(buf, "<Bonus>%d</Bonus>\n", nBonus);
+  sprintf(buf, "<HomeBonus>%d</HomeBonus>\n", bBonusHome ? 1 : 0);
+  strcat(XML, buf);
+  sprintf(buf, "<VisitorBonus>%d</VisitorBonus>\n", bBonusVisitor ? 1 : 0);
   strcat(XML, buf);
   sprintf(buf, "<TimerRunning>%d</TimerRunning>\n", bTimeRunning ? 1 : 0);
   strcat(XML, buf);

@@ -143,15 +143,26 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
   <table style="width: 100%;">
     <tbody>
       <tr>
-        <td><button type="button" class="btn" id="HomeScoreDown1" onclick="HomeScoreDown1()">Score - 1</button></td>
-        <td><button type="button" class="btn" id="HomeScoreReset" onclick="HomeScoreReset()">Reset 0</button></td>
-        <td><button type="button" class="btn" id="HomeUpDown1" onclick="HomeScoreUp1()">Score + 1</button></td>
+        <td><button type="button" class="btn" id="HomeScoreUp2" onclick="HomeScoreUp2()">Score<br>+ 2</button></td>
+        <td></td>
+        <td><button type="button" class="btn" id="HomeScoreUp3" onclick="HomeScoreUp3()">Score<br>+ 3</button></td>
         <td><br></td>
-        <td><button type="button" class="btn" id="PeriodUp" onclick="PeriodUp()">Period +</button></td>
+        <td><button type="button" class="btn" id="PeriodUp" onclick="PeriodUp()">Period<br>+</button></td>
         <td><br></td>
-        <td><button type="button" class="btn" id="VisitorScoreDown1" onclick="VisitorScoreDown1()">Score - 1</button></td>
-        <td><button type="button" class="btn" id="VisitorScoreReset" onclick="VisitorScoreReset()">Reset 0</button></td>
-        <td><button type="button" class="btn" id="VisitorScoreUp1" onclick="VisitorScoreUp1()">Score + 1</button></td>
+        <td><button type="button" class="btn" id="VisitorScoreUp2" onclick="VisitorScoreUp2()">Score<br>+ 2</button></td>
+        <td></td>
+        <td><button type="button" class="btn" id="VisitorScoreUp3" onclick="VisitorScoreUp1()">Score<br>+ 3</button></td>
+      </tr>
+      <tr>
+        <td><button type="button" class="btn" id="HomeScoreDown1" onclick="HomeScoreDown1()">Score<br> - 1</button></td>
+        <td><button type="button" class="btn" id="HomeScoreReset" onclick="HomeScoreReset()">Reset<br>0</button></td>
+        <td><button type="button" class="btn" id="HomeScoreUp1" onclick="HomeScoreUp1()">Score<br>+ 1</button></td>
+        <td><br></td>
+        <td><br></td>
+        <td><br></td>
+        <td><button type="button" class="btn" id="VisitorScoreDown1" onclick="VisitorScoreDown1()">Score<br>- 1</button></td>
+        <td><button type="button" class="btn" id="VisitorScoreReset" onclick="VisitorScoreReset()">Reset<br>0</button></td>
+        <td><button type="button" class="btn" id="VisitorScoreUp1" onclick="VisitorScoreUp1()">Score<br>+ 1</button></td>
       </tr>
       <tr>
         <td><button type="button" class="btn" id="HomeBonus" onclick="HomeBonus()">Bonus</button></td>
@@ -169,7 +180,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         <td><br></td>
         <td><br></td>
         <td><br></td>
-        <td><button type="button" class="btn" id="StartStopTimer" onclick="StartStopTimer()">Run Timer</button></td>
+        <td><button type="button" class="btn" id="StartStopTimer" onclick="StartStopTimer()">Run<br>Timer</button></td>
         <td><br></td>
         <td><br></td>
         <td><br></td>
@@ -250,6 +261,18 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       xhttp.open("PUT", "BUTTON_0", false);
       xhttp.send();
     }
+    function HomeScoreUp2() {
+      var xhttp = new XMLHttpRequest(); 
+      var message;
+      xhttp.open("PUT", "HomeScoreUp2", false);
+      xhttp.send();
+    }
+    function HomeScoreUp3() {
+      var xhttp = new XMLHttpRequest(); 
+      var message;
+      xhttp.open("PUT", "HomeScoreUp3", false);
+      xhttp.send();
+    }
     function HomeScoreUp1() {
       var xhttp = new XMLHttpRequest(); 
       var message;
@@ -290,6 +313,18 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest(); 
       var message;
       xhttp.open("PUT", "VisitorScoreUp1", false);
+      xhttp.send();
+    }
+    function VisitorScoreUp2() {
+      var xhttp = new XMLHttpRequest(); 
+      var message;
+      xhttp.open("PUT", "VisitorScoreUp2", false);
+      xhttp.send();
+    }
+    function VisitorScoreUp3() {
+      var xhttp = new XMLHttpRequest(); 
+      var message;
+      xhttp.open("PUT", "VisitorScoreUp3", false);
       xhttp.send();
     }
     function HomeBonus() {
@@ -430,19 +465,21 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         document.getElementById("visitorPosessionDisp").style.backgroundColor="orange"; 
         document.getElementById("homePosessionDisp").style.backgroundColor="gray";
       }
-      xmldoc = xmlResponse.getElementsByTagName("Bonus");
+      xmldoc = xmlResponse.getElementsByTagName("HomeBonus");
       message = xmldoc[0].firstChild.nodeValue;
-      if (message == -1){
+      if (message == 1){
         document.getElementById("homeBonusDisp").style.backgroundColor="yellow";
-        document.getElementById("visitorBonusDisp").style.backgroundColor="gray"; 
       }
-      else if (message == 1){
+      else {
         document.getElementById("homeBonusDisp").style.backgroundColor="gray";
+      }
+            xmldoc = xmlResponse.getElementsByTagName("VisitorBonus");
+      message = xmldoc[0].firstChild.nodeValue;
+      if (message == 1){
         document.getElementById("visitorBonusDisp").style.backgroundColor="yellow"; 
       }
       else {
         document.getElementById("visitorBonusDisp").style.backgroundColor="gray"; 
-        document.getElementById("homeBonusDisp").style.backgroundColor="gray";
       }
       xmldoc = xmlResponse.getElementsByTagName("TimerRunning");
       message = xmldoc[0].firstChild.nodeValue;
