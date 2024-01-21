@@ -96,7 +96,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         </tr>
         <tr>
           <td><button type="button" class="btn" id="HomeScoreUp2" style="color: pink" onclick="HomeScoreUp2()">Score<br>+ 2</button></td>
-          <td colspan="4"><button type="button" class="scorebtn" disabled><span id="ScoreDisp">00 - 00</span></button></td>
+          <td colspan="4"><button type="button" class="scorebtn"><span id="ScoreDisp">00 - 00</span></button></td>
           <td><button type="button" class="btn" id="VisitorScoreUp2" style="color: pink" onclick="VisitorScoreUp2()">Score<br>+ 2</button></td>
         </tr>
         <tr>              
