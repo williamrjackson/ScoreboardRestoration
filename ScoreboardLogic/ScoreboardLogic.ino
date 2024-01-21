@@ -22,7 +22,7 @@ uint32_t BoardUpdate = 1000;
 uint32_t BuzzerDuration = 2000;
 
 // the XML array size needs to be bigger that your maximum expected size.
-char XML[128];
+char XML[512];
 
 // just some buffer holder for char operations
 char buf[32];
@@ -216,55 +216,59 @@ int nPos = 0; // 0 home; 1 visitors
 bool bTimeRunning = false;
 bool bBuzzing = false;
 uint32_t BuzzerStart = 0;
+uint32_t LastInteraction = 0;
+bool offMode = false;
 
 void updateScoreboard()
 {
-//  Serial.println("Update");
-  nHomeScore = constrain(nHomeScore, 0, 199);
-  nVisitorScore = constrain(nVisitorScore, 0, 199);
-  nPeriod = constrain(nPeriod, 0, 9);
-  nSeconds = constrain(nSeconds, 0, 3600);
-  int minutesCalc = nSeconds / 60;
-  int secondsCalc = nSeconds % 60;
+  if (!offMode)
+  {
+    nHomeScore = constrain(nHomeScore, 0, 199);
+    nVisitorScore = constrain(nVisitorScore, 0, 199);
+    nPeriod = constrain(nPeriod, 0, 9);
+    nSeconds = constrain(nSeconds, 0, 3600);
+    int minutesCalc = nSeconds / 60;
+    int secondsCalc = nSeconds % 60;
 
-  updateDigit(homeScore, nHomeScore, CRGB::Red);
-  updateDigit(visitorScore, nVisitorScore, CRGB::Red);
-  updateDigit(timeMinutes, minutesCalc, CRGB::Yellow);
-  updateDigit(timeSeconds, secondsCalc, CRGB::Yellow);
-  updateDigit(period, nPeriod, CRGB::Green);
-//  updateIndicator(homePosession, nPos == 0, CRGB::Red);
-//  updateIndicator(visitorPosession, nPos == 1, CRGB::Red);
-//  updateIndicator(homeBonus, bBonusHome == -1, CRGB::Green);
-//  updateIndicator(visitorBonus, bBonusVisitor, CRGB::Green);
+    updateDigit(homeScore, nHomeScore, CRGB::Red);
+    updateDigit(visitorScore, nVisitorScore, CRGB::Red);
+    updateDigit(timeMinutes, minutesCalc, CRGB::Yellow);
+    updateDigit(timeSeconds, secondsCalc, CRGB::Yellow);
+    updateDigit(period, nPeriod, CRGB::Green);
 
-  FastLED.show();
-  server.send(200, "text/plain", "");
+    // updateIndicator(homePosession, nPos == 0, CRGB::Red);
+    // updateIndicator(visitorPosession, nPos == 1, CRGB::Red);
+    // updateIndicator(homeBonus, bBonusHome == -1, CRGB::Green);
+    // updateIndicator(visitorBonus, bBonusVisitor, CRGB::Green);
+
+    FastLED.show();
+  }
 }
 
 void HomeScoreUp1() {
 Serial.println("HomeScoreUp1");
   nHomeScore++;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void HomeScoreUp2() {
 Serial.println("HomeScoreUp2");
   nHomeScore += 2;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void HomeScoreUp3() {
 Serial.println("HomeScoreUp3");
   nHomeScore += 3;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void HomeScoreReset() {
   Serial.println("HomeScoreReset");
   nHomeScore = 0;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void HomeScoreDown1() {
 Serial.println("HomeScoreDown1");
   nHomeScore--;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void PeriodUp() {
 Serial.println("PeriodUp");
@@ -273,126 +277,134 @@ Serial.println("PeriodUp");
   {
     nPeriod = 1;
   }
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void VisitorScoreDown1() {
 Serial.println("VisitorScoreDown1");
   nVisitorScore--;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void VisitorScoreReset() {
   Serial.println("VisitorScoreReset");
   nVisitorScore = 0;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void VisitorScoreUp1() {
 Serial.println("VisitorScoreUp1");
   nVisitorScore++;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void VisitorScoreUp2() {
 Serial.println("VisitorScoreUp2");
   nVisitorScore += 2;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void VisitorScoreUp3() {
 Serial.println("VisitorScoreUp3");
   nVisitorScore += 3;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void HomeBonus() {
   Serial.println("HomeBonus");
   bBonusHome = !bBonusHome;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void HomePos() {
   Serial.println("HomePos");
   nPos = 0;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void VisitorPos() {
   Serial.println("VisitorPos");
   nPos = 1;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void VisitorBonus() {
   Serial.println("VisitorBonus");
   bBonusVisitor = !bBonusVisitor;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void StartStopTimer() {
   Serial.println("StartStopTimer");
   bTimeRunning = !bTimeRunning;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void TimeDn1() {
 Serial.println("TimeDn1");
   nSeconds--;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void TimeDn10() {
   Serial.println("TimeDn10");
   nSeconds-=10;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void TimeDn60() {
   Serial.println("TimeDn60");
   nSeconds-=60;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void TimeUp60() {
   Serial.println("TimeUp60");
   nSeconds+=60;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void TimeUp10() {
   Serial.println("TimeUp10");
   nSeconds+=10;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void TimeUp1() {
 Serial.println("TimeUp1");
   nSeconds++;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void TimerSet12() {
   Serial.println("TimerSet12");
+  bTimeRunning = false;
   nSeconds = 720;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void TimerSet10() {
   Serial.println("TimerSet10");
+  bTimeRunning = false;
   nSeconds = 600;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void TimerSet0() {
   Serial.println("TimerSet0");
+  bTimeRunning = false;
   nSeconds = 0;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void TimerSet2() {
   Serial.println("TimerSet2");
+  bTimeRunning = false;
   nSeconds = 120;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void TimerSet20() {
   Serial.println("TimerSet20");
+  bTimeRunning = false;
   nSeconds = 1200;
-  server.send(200, "text/plain", "");
+  registerInteraction();
 }
 void Buzzer() {
   if (!bBuzzing)
   {
     bBuzzing = true;
     BuzzerStart = millis();
-    server.send(200, "text/plain", "");
   }
 }
 
 void handleNotFound() {
   server.send(200, "text/plain", "");
 }
-
+void registerInteraction() {
+  LastInteraction = millis();
+  offMode = false;
+  server.send(200, "text/plain", "");
+}
 void setup() {
   // standard stuff here
   
@@ -406,20 +418,20 @@ void setup() {
   updateDigit(timeMinutes, 88, CRGB::Yellow);
   updateDigit(timeSeconds, 88, CRGB::Yellow);
   updateDigit(period, 8, CRGB::Green);
-//  updateIndicator(homePosession, true, CRGB::Red);
-//  updateIndicator(visitorPosession, true, CRGB::Red);
-//  updateIndicator(homeBonus, true, CRGB::Green);
-//  updateIndicator(visitorBonus, true, CRGB::Green);
-  delay(3000);
+//   updateIndicator(homePosession, true, CRGB::Red);
+//   updateIndicator(visitorPosession, true, CRGB::Red);
+//   updateIndicator(homeBonus, true, CRGB::Green);
+//   updateIndicator(visitorBonus, true, CRGB::Green);
+  FastLED.show();
+  delay(10000);
   
   // if your web page or XML are large, you may not get a call back from the web page
   // and the ESP will think something has locked up and reboot the ESP
   // not sure I like this feature, actually I kinda hate it
   // disable watch dog timer 0
   disableCore0WDT();
-
   // maybe disable watch dog timer 1 if needed
-  //  disableCore1WDT();
+  // disableCore1WDT();
 
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
@@ -489,6 +501,7 @@ void loop() {
     if (bTimeRunning)
       {
         nSeconds--;
+        registerInteraction();
         if (nSeconds == 0)
         {
           bTimeRunning = false;
@@ -509,6 +522,21 @@ void loop() {
       bBuzzing = false;
     }
   }
+  if (millis() - LastInteraction > 1800000)
+  {
+    offMode = true;
+    for (int i = 0; i < NUM_LEDS; i++)
+    {
+      leds[i] = offColor;
+    }
+    nPeriod = 1;
+    nSeconds = 0; 
+    nHomeScore = 0;
+    nVisitorScore = 0;
+    bBonusHome = false;
+    bBonusVisitor = false;
+    nPos = 0; // 0 home; 1 visitors
+  }
   // call handleClient repeatedly--otherwise the web page
   // will not get instructions
   server.handleClient();
@@ -525,13 +553,10 @@ void SendWebsite()
 // code to send the main web page
 void SendXML() {
   // Serial.println("sending xml");
-
   strcpy(XML, "<?xml version = '1.0'?>\n<Data>\n");
   sprintf(buf, "<Time>%02d:%02d</Time>\n", nSeconds / 60, nSeconds % 60);
   strcat(XML, buf);
-  sprintf(buf, "<HomeScore>%d</HomeScore>\n", nHomeScore);
-  strcat(XML, buf);
-  sprintf(buf, "<VisitorScore>%d</VisitorScore>\n", nVisitorScore);
+  sprintf(buf, "<Score>%02d - %02d</Score>\n", nHomeScore, nVisitorScore);
   strcat(XML, buf);
   sprintf(buf, "<Period>%d</Period>\n", nPeriod);
   strcat(XML, buf);
@@ -545,7 +570,6 @@ void SendXML() {
   strcat(XML, buf);
   strcat(XML, "</Data>\n");
   // Serial.println(XML);
-
   // you may have to play with this value, big pages need more porcessing time, and hence
   // a longer timeout that 200 ms
   server.send(200, "text/xml", XML);
@@ -568,9 +592,4 @@ void printWifiStatus() {
   Serial.print("signal strength (RSSI):");
   Serial.print(rssi);
   Serial.println(" dBm");
-  // print where to go in a browser:
-  Serial.print("Open http://");
-  Serial.println(ip);
 }
-
-// end of code

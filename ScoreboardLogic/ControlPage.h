@@ -15,211 +15,101 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       vertical-align: middle;
     }
     .btn {
-      background-color: #272727;
-      border: 5px solid rgb(0, 42, 34);
+      background-color: rgb(39, 39, 39);
+      border: 3px solid rgb(45, 104, 93);
       border-radius: 10px; /* Adjust this value as needed */
       color: white;
       text-align: center;
       text-decoration: none;
       display: inline-block;
       font-weight: bold;
-      font-size: 2vw; 
-      margin: 4px 2px;
+      font-size: 3.5vw; 
       height: 100%;
       width: 100%;
       cursor: pointer;
     }
-    .cell {
-      width: 10%; 
-      background-color: rgb(47, 66, 65); 
-      border: none rgb(0, 0, 0);
-      align-items: center;
-      align-content: center;
+    .scorebtn {
+      background-color: #00000000;
+      border: none;
+      color: rgb(255, 130, 5);
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-weight: bold;
+      font-size: 9vw; 
+      height: 100%;
+      width: 100%;
+      cursor: pointer;
+    }
+    .score {
+      color: rgb(180, 87, 44);
+      font-family: 'Courier New', monospace;
+      font-weight:bold;
+      /* font-size: 11vw;  */
+      text-align: center;
+      vertical-align: middle;
+      line-height: 100%;
     }
     .dot {
       background-color:gray;
-      display:block;
+      /* display:block; */
       height:25px;
       width:25px;
       border-radius:50%;
       border:2px solid #000;
-      margin:auto;
+      /* margin:auto; */
       line-height:50px;
-      text-align:center
+      /* text-align:center */
     }
     
   </style>
 
-  <body style="background-color: #efefef" onload="process()">
-    <table style="width: 97.5vw; height: 20vh; border-collapse: collapse; border: none;">
+  <body style="background-color: #434343" onload="process()">
+  <table style="width: 100vw; height: 100vh;">
     <tbody>
-      <tr>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell" colspan="2">
-          <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Timer</span></div>
-        </td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-      </tr>
-      <tr>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell" colspan="2" rowspan="2">
-          <div style="text-align: center;"><span id= "timeDisp" style='font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; font-size: 60px; color: rgb(247, 218, 100);'>02:00</span></div>
-        </td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-      </tr>
-      <tr>
-        <td class="cell"><br></td>
-        <td class="cell" colspan="2">
-          <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Home Score</span></div>
-        </td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell" colspan="2">
-          <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Visitor Score</span></div>
-        </td>
-        <td class="cell"><br></td>
-      </tr>
-      <tr>
-        <td class="cell">
-          <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Bonus</span></div>
-        </td>
-        <td class="cell" colspan="2" rowspan="3">
-          <div style="text-align: center;"><span id="homeScoreDisp" style='font-size: 72px; font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; color: rgb(235, 107, 86);'>0</span></div>
-        </td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell" colspan="2" rowspan="3">
-          <div style="text-align: center;"><span id="visitorScoreDisp" style='font-size: 72px; font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; color: rgb(235, 107, 86);'>0</span></div>
-        </td>
-        <td class="cell">
-          <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Bonus</span></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="cell">
-          <div id="homeBonusDisp" class="dot" style="background-color:Yellow"><br>
-        </td>
-        <td class="cell">
-          <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Posession</span></div>
-        </td>
-        <td class="cell" colspan="2">
-          <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Period</span></div>
-        </td>
-        <td class="cell">
-          <div style="text-align: center;"><span style="font-family: Tahoma, Geneva, sans-serif; color: rgb(239, 239, 239);">Posession</span></div>
-        </td>
-        <td class="cell">
-          <div id="visitorBonusDisp" class="dot"><br>
-        </td>
-      </tr>
-      <tr>
-        <td class="cell"><br></td>
-        <td class="cell">
-          <div id="homePosessionDisp" class="dot"><br>
-        </td>
-        <td class="cell" colspan="2" rowspan="2">
-          <div style="text-align: center;"><span id="periodDisp" style='font-size: 48px; font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; color: rgb(97, 189, 109);'>4</span></div>
-        </td>
-        <td class="cell">
-          <div id="visitorPosessionDisp" class="dot" style="background-color:Orange"><br>
-        </td>
-        <td class="cell"><br></td>
-      </tr>
-      <tr>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-        <td class="cell"><br></td>
-      </tr>
-    </tbody>
-  </table>
-  <table style="width: 97.5vw; height: 70vh; border-collapse: collapse;">
-    <tbody>
-      <tr>
-        <td><button type="button" class="btn" id="HomeScoreUp2" style="color: pink" onclick="HomeScoreUp2()">Score<br>+ 2</button></td>
-        <td></td>
-        <td><button type="button" class="btn" id="HomeScoreUp3" style="color: pink" onclick="HomeScoreUp3()">Score<br>+ 3</button></td>
-        <td><button type="button" class="btn" id="PeriodUp" style="color: rgb(192, 255, 239); height: 90%; width:90%;" onclick="PeriodUp()">Period<br>+</button></td>
-        <td><button type="button" class="btn" id="VisitorScoreUp2" style="color: pink" onclick="VisitorScoreUp2()">Score<br>+ 2</button></td>
-        <td></td>
-        <td><button type="button" class="btn" id="VisitorScoreUp3" style="color: pink" onclick="VisitorScoreUp1()">Score<br>+ 3</button></td>
-      </tr>
-      <tr>
+        <tr>
+          <td colspan="6"><button style="color: rgb(247, 218, 100)" type="button" class="btn" onclick="StartStopTimer()"><span id="StartStopTimer">Run Timer</span><br>
+          <span id= "timeDisp" style="font-size:200%">00:00</span></button></td>
+        </tr>
+        <tr>
+          <td><button type="button" class="btn" id="TimeDn1" onclick="TimeDn1()">-1</button></td>
+          <td><button type="button" class="btn" id="TimeDn10" onclick="TimeDn10()">-10</button></td>
+          <td><button type="button" class="btn" id="TimeDn60" onclick="TimeDn60()">-60</button></td>
+          <td><button type="button" class="btn" id="TimeUp60" onclick="TimeUp60()">+60</button></td>
+          <td><button type="button" class="btn" id="TimeUp10" onclick="TimeUp10()">+10</button></td>
+          <td><button type="button" class="btn" id="TimeUp1" onclick="TimeUp1()">+1</button></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><button type="button" class="btn" id="TimerSet12" onclick="TimerSet12()">Set<br>12:00</button></td>
+          <td><button type="button" class="btn" id="TimerSet10" onclick="TimerSet10()">Set<br>10:00</button></td>
+          <td colspan="2"><button type="button" class="btn" id="PeriodUp" style="color: rgb(192, 255, 239); height: 90%; width:90%;" onclick="PeriodUp()">Period<br><span id="periodDisp" style="font-size: 5vw">1</span></button></td>
+          <td><button type="button" class="btn" id="TimerSet2" onclick="TimerSet2()">Set<br>2:00</button></td>
+          <td><button type="button" class="btn" id="TimerSet20" onclick="TimerSet20()">Set<br>20:00</button></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td colspan="2"><button type="button" class="btn" id="homePosessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="HomePos()">Pos</button></td>
+          <td><button type="button" class="btn" id="homeBonusDisp" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="HomeBonus()">Bonus</button></td>
+          <td><button type="button" class="btn" id="visitorBonusDisp" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="VisitorBonus()">Bonus</button></td>
+          <td colspan="2"><button type="button" class="btn"  id="visitorPosessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="VisitorPos()">Pos</button></td>
+        </tr>
+        <tr>
+          <td><button type="button" class="btn" id="HomeScoreUp2" style="color: pink" onclick="HomeScoreUp2()">Score<br>+ 2</button></td>
+          <td colspan="4"><button type="button" class="scorebtn" disabled><span id="ScoreDisp">00 - 00</span></button></td>
+          <td><button type="button" class="btn" id="VisitorScoreUp2" style="color: pink" onclick="VisitorScoreUp2()">Score<br>+ 2</button></td>
+        </tr>
+        <tr>              
+          <td><button type="button" class="btn" id="HomeScoreUp1" style="color: pink" onclick="HomeScoreUp1()">Score<br>+ 1</button></td>
+          <td><button type="button" class="btn" id="HomeScoreUp3" style="color: pink" onclick="HomeScoreUp3()">Score<br>+ 3</button></td>
+          <td colspan="2" rowspan="2"><button type="button" class="btn" id="Buzzer" style="color: rgb(192, 255, 239); height: 50%; width:80%;" onclick="Buzzer()">Buzzer</button></td>
+          <td><button type="button" class="btn" id="VisitorScoreUp3" style="color: pink" onclick="VisitorScoreUp3()">Score<br>+ 3</button></td>
+          <td><button type="button" class="btn" id="VisitorScoreUp1" style="color: pink" onclick="VisitorScoreUp1()">Score<br>+ 1</button></td>
+        </tr>
         <td><button type="button" class="btn" id="HomeScoreDown1" style="color: pink" onclick="HomeScoreDown1()">Score<br> - 1</button></td>
         <td><button type="button" class="btn" id="HomeScoreReset" style="color: pink" onclick="HomeScoreReset()">Reset<br>0</button></td>
-        <td><button type="button" class="btn" id="HomeScoreUp1" style="color: pink" onclick="HomeScoreUp1()">Score<br>+ 1</button></td>
-        <td></td>
-        <td><button type="button" class="btn" id="VisitorScoreDown1" style="color: pink" onclick="VisitorScoreDown1()">Score<br>- 1</button></td>
         <td><button type="button" class="btn" id="VisitorScoreReset" style="color: pink" onclick="VisitorScoreReset()">Reset<br>0</button></td>
-        <td><button type="button" class="btn" id="VisitorScoreUp1" style="color: pink" onclick="VisitorScoreUp1()">Score<br>+ 1</button></td>
-      </tr>
-      <tr>
-        <td colspan="2"><button type="button" class="btn" id="HomePos" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="HomePos()">Pos</button></td>
-        <!-- <td></td> -->
-        <td><button type="button" class="btn" id="HomeBonus" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="HomeBonus()">Bonus</button></td>
-        <td></td>
-        <!-- <td></td> -->
-        <td><button type="button" class="btn" id="VisitorBonus" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="VisitorBonus()">Bonus</button></td>
-        <!-- <td></td> -->
-        <td colspan="2"><button type="button" class="btn" id="VisitorPos" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="VisitorPos()">Pos</button></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td></td>
-        <!-- <td></td> -->
-        <td colspan="3"><button type="button" class="btn" id="StartStopTimer" style="color: rgb(247, 218, 100) "StartStopTimer()">Run<br>Timer</button></td>
-        <!-- <td></td> -->
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><button type="button" class="btn" id="TimeDn1" onclick="TimeDn1()">-1</button></td>
-        <td><button type="button" class="btn" id="TimeDn10" onclick="TimeDn10()">-10</button></td>
-        <td><button type="button" class="btn" id="TimeDn60" onclick="TimeDn60()">-60</button></td>
-        <td><button type="button" class="btn" id="TimerSet0"  style="height: 90%; width:90%;" onclick="TimerSet0()">Reset<br>Timer</button></td>
-        <td><button type="button" class="btn" id="TimeUp60" onclick="TimeUp60()">+60</button></td>
-        <td><button type="button" class="btn" id="TimeUp10" onclick="TimeUp10()">+10</button></td>
-        <td><button type="button" class="btn" id="TimeUp1" onclick="TimeUp1()">+1</button></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><button type="button" class="btn" id="TimerSet12" onclick="TimerSet12()">Set<br>12:00</button></td>
-        <td><button type="button" class="btn" id="TimerSet10" onclick="TimerSet10()">Set<br>10:00</button></td>
-        <td></td>
-        <td><button type="button" class="btn" id="Buzzer" style="height: 90%; width:90%;" onclick="Buzzer()">Buzzer</button></td>
-        <td></td>
-        <td><button type="button" class="btn" id="TimerSet2" onclick="TimerSet2()">Set<br>2:00</button></td>
-        <td><button type="button" class="btn" id="TimerSet20" onclick="TimerSet20()">Set<br>20:00</button></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td><button type="button" class="btn" id="VisitorScoreDown1" style="color: pink" onclick="VisitorScoreDown1()">Score<br>- 1</button></td>
       </tr>
     </tbody>
   </table>
@@ -239,28 +129,10 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       return xmlHttp;
     }
 
-    // function to handle button press from HTML code above
-    // and send a processing string back to server
-    // this processing string is use in the .on method
-    function ButtonPress0() {
+    function HomeScoreUp1() {
       var xhttp = new XMLHttpRequest(); 
       var message;
-      // if you want to handle an immediate reply (like status from the ESP
-      // handling of the button press use this code
-      // since this button status from the ESP is in the main XML code
-      // we don't need this
-      // remember that if you want immediate processing feedbac you must send it
-      // in the ESP handling function and here
-      /*
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          message = this.responseText;
-          // update some HTML data
-        }
-      }
-      */
-       
-      xhttp.open("PUT", "BUTTON_0", false);
+      xhttp.open("PUT", "HomeScoreUp1", false);
       xhttp.send();
     }
     function HomeScoreUp2() {
@@ -273,12 +145,6 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest(); 
       var message;
       xhttp.open("PUT", "HomeScoreUp3", false);
-      xhttp.send();
-    }
-    function HomeScoreUp1() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "HomeScoreUp1", false);
       xhttp.send();
     }
     function HomeScoreReset() {
@@ -305,12 +171,6 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       xhttp.open("PUT", "VisitorScoreDown1", false);
       xhttp.send();
     }
-    function VisitorScoreReset() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "VisitorScoreReset", false);
-      xhttp.send();
-    }
     function VisitorScoreUp1() {
       var xhttp = new XMLHttpRequest(); 
       var message;
@@ -327,6 +187,12 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest(); 
       var message;
       xhttp.open("PUT", "VisitorScoreUp3", false);
+      xhttp.send();
+    }
+    function VisitorScoreReset() {
+      var xhttp = new XMLHttpRequest(); 
+      var message;
+      xhttp.open("PUT", "VisitorScoreReset", false);
       xhttp.send();
     }
     function HomeBonus() {
@@ -445,13 +311,9 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       message = xmldoc[0].firstChild.nodeValue;
       document.getElementById("timeDisp").innerHTML=message;      
 
-      xmldoc = xmlResponse.getElementsByTagName("HomeScore");
+      xmldoc = xmlResponse.getElementsByTagName("Score");
       message = xmldoc[0].firstChild.nodeValue;
-      document.getElementById("homeScoreDisp").innerHTML=message;      
-      
-      xmldoc = xmlResponse.getElementsByTagName("VisitorScore");
-      message = xmldoc[0].firstChild.nodeValue;
-      document.getElementById("visitorScoreDisp").innerHTML=message;
+      document.getElementById("ScoreDisp").innerHTML=message;      
 
       xmldoc = xmlResponse.getElementsByTagName("Period");
       message = xmldoc[0].firstChild.nodeValue;
@@ -460,28 +322,28 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       xmldoc = xmlResponse.getElementsByTagName("Pos");
       message = xmldoc[0].firstChild.nodeValue;
       if (message == 0){
-        document.getElementById("visitorPosessionDisp").style.backgroundColor="gray"; 
-        document.getElementById("homePosessionDisp").style.backgroundColor="orange";
+        document.getElementById("visitorPosessionDisp").style.backgroundColor="rgb(39, 39, 39)"; 
+        document.getElementById("homePosessionDisp").style.backgroundColor="rgb(93, 76, 52)";
       }
       else {
-        document.getElementById("visitorPosessionDisp").style.backgroundColor="orange"; 
-        document.getElementById("homePosessionDisp").style.backgroundColor="gray";
+        document.getElementById("visitorPosessionDisp").style.backgroundColor="rgb(93, 76, 52)";
+        document.getElementById("homePosessionDisp").style.backgroundColor="rgb(39, 39, 39)";
       }
       xmldoc = xmlResponse.getElementsByTagName("HomeBonus");
       message = xmldoc[0].firstChild.nodeValue;
       if (message == 1){
-        document.getElementById("homeBonusDisp").style.backgroundColor="yellow";
+        document.getElementById("homeBonusDisp").style.backgroundColor="rgb(66, 78, 37)";
       }
       else {
-        document.getElementById("homeBonusDisp").style.backgroundColor="gray";
+        document.getElementById("homeBonusDisp").style.backgroundColor="rgb(39, 39, 39)";
       }
             xmldoc = xmlResponse.getElementsByTagName("VisitorBonus");
       message = xmldoc[0].firstChild.nodeValue;
       if (message == 1){
-        document.getElementById("visitorBonusDisp").style.backgroundColor="yellow"; 
+        document.getElementById("visitorBonusDisp").style.backgroundColor="rgb(66, 78, 37)"; 
       }
       else {
-        document.getElementById("visitorBonusDisp").style.backgroundColor="gray"; 
+        document.getElementById("visitorBonusDisp").style.backgroundColor="rgb(39, 39, 39)"; 
       }
       xmldoc = xmlResponse.getElementsByTagName("TimerRunning");
       message = xmldoc[0].firstChild.nodeValue;
@@ -507,7 +369,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       }       
         // you may have to play with this value, big pages need more porcessing time, and hence
         // a longer timeout
-        setTimeout("process()", 100);
+        setTimeout("process()", 200);
     }
   </script>
 </html>
