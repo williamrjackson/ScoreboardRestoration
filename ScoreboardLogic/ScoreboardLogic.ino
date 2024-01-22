@@ -10,6 +10,8 @@
 
 #define AP_SSID "Keverian Scoreboard"
 #define AP_PASS "PASSSWORD"
+#define IDLE_MIN 30
+// #define ENABLE_LOGGING // Comment/Uncomment to enable logging
 
 #define NUM_LEDS 250
 #define DATA_PIN 3
@@ -246,148 +248,121 @@ void updateScoreboard()
 }
 
 void HomeScoreUp1() {
-Serial.println("HomeScoreUp1");
   nHomeScore++;
-  registerInteraction();
+  registerInteraction("HomeScoreUp1");
 }
 void HomeScoreUp2() {
-Serial.println("HomeScoreUp2");
   nHomeScore += 2;
-  registerInteraction();
+  registerInteraction("HomeScoreUp2");
 }
 void HomeScoreUp3() {
-Serial.println("HomeScoreUp3");
   nHomeScore += 3;
-  registerInteraction();
+  registerInteraction("HomeScoreUp3");
 }
 void HomeScoreReset() {
-  Serial.println("HomeScoreReset");
   nHomeScore = 0;
-  registerInteraction();
+  registerInteraction("HomeScoreReset");
 }
 void HomeScoreDown1() {
-Serial.println("HomeScoreDown1");
   nHomeScore--;
-  registerInteraction();
+  registerInteraction("HomeScoreDown1");
 }
 void PeriodUp() {
-Serial.println("PeriodUp");
   nPeriod++;
   if (nPeriod > 6)
   {
     nPeriod = 1;
   }
-  registerInteraction();
+  registerInteraction("PeriodUp");
 }
 void VisitorScoreDown1() {
-Serial.println("VisitorScoreDown1");
   nVisitorScore--;
-  registerInteraction();
+  registerInteraction("VisitorScoreDown1");
 }
 void VisitorScoreReset() {
-  Serial.println("VisitorScoreReset");
   nVisitorScore = 0;
-  registerInteraction();
+  registerInteraction("VisitorScoreReset");
 }
 void VisitorScoreUp1() {
-Serial.println("VisitorScoreUp1");
   nVisitorScore++;
-  registerInteraction();
+  registerInteraction("VisitorScoreUp1");
 }
 void VisitorScoreUp2() {
-Serial.println("VisitorScoreUp2");
   nVisitorScore += 2;
-  registerInteraction();
+  registerInteraction("VisitorScoreUp2");
 }
 void VisitorScoreUp3() {
-Serial.println("VisitorScoreUp3");
   nVisitorScore += 3;
-  registerInteraction();
+  registerInteraction("VisitorScoreUp3");
 }
 void HomeBonus() {
-  Serial.println("HomeBonus");
   bBonusHome = !bBonusHome;
-  registerInteraction();
+  registerInteraction("HomeBonus");
 }
 void HomePos() {
-  Serial.println("HomePos");
   nPos = 0;
-  registerInteraction();
+  registerInteraction("HomePos");
 }
 void VisitorPos() {
-  Serial.println("VisitorPos");
   nPos = 1;
-  registerInteraction();
+  registerInteraction("VisitorPos");
 }
 void VisitorBonus() {
-  Serial.println("VisitorBonus");
   bBonusVisitor = !bBonusVisitor;
-  registerInteraction();
+  registerInteraction("VisitorBonus");
 }
 void StartStopTimer() {
-  Serial.println("StartStopTimer");
   bTimeRunning = !bTimeRunning;
-  registerInteraction();
+  registerInteraction("StartStopTimer");
 }
 void TimeDn1() {
-Serial.println("TimeDn1");
   nSeconds--;
-  registerInteraction();
+  registerInteraction("TimeDn1");
 }
 void TimeDn10() {
-  Serial.println("TimeDn10");
   nSeconds-=10;
-  registerInteraction();
+  registerInteraction("TimeDn10");
 }
 void TimeDn60() {
-  Serial.println("TimeDn60");
   nSeconds-=60;
-  registerInteraction();
+  registerInteraction("TimeDn60");
 }
 void TimeUp60() {
-  Serial.println("TimeUp60");
   nSeconds+=60;
-  registerInteraction();
+  registerInteraction("TimeUp60");
 }
 void TimeUp10() {
-  Serial.println("TimeUp10");
   nSeconds+=10;
-  registerInteraction();
+  registerInteraction("TimeUp10");
 }
 void TimeUp1() {
-Serial.println("TimeUp1");
   nSeconds++;
-  registerInteraction();
+  registerInteraction("TimeUp1");
 }
 void TimerSet12() {
-  Serial.println("TimerSet12");
   bTimeRunning = false;
   nSeconds = 720;
-  registerInteraction();
+  registerInteraction("TimerSet12");
 }
 void TimerSet10() {
-  Serial.println("TimerSet10");
   bTimeRunning = false;
   nSeconds = 600;
-  registerInteraction();
+  registerInteraction("TimerSet10");
 }
 void TimerSet0() {
-  Serial.println("TimerSet0");
   bTimeRunning = false;
   nSeconds = 0;
-  registerInteraction();
+  registerInteraction("TimerSet0");
 }
 void TimerSet2() {
-  Serial.println("TimerSet2");
   bTimeRunning = false;
   nSeconds = 120;
-  registerInteraction();
+  registerInteraction("TimerSet2");
 }
 void TimerSet20() {
-  Serial.println("TimerSet20");
   bTimeRunning = false;
   nSeconds = 1200;
-  registerInteraction();
+  registerInteraction("TimerSet20");
 }
 void Buzzer() {
   if (!bBuzzing)
@@ -400,14 +375,22 @@ void Buzzer() {
 void handleNotFound() {
   server.send(200, "text/plain", "");
 }
-void registerInteraction() {
+void registerInteraction(const char interactionName[]) {
   LastInteraction = millis();
-  offMode = false;
+  if (offMode)
+  {
+#ifdef ENABLE_LOGGING
+    Serial.println("On Mode");
+#endif
+    offMode = false;
+  }
   server.send(200, "text/plain", "");
+  #ifdef ENABLE_LOGGING
+  Serial.print("Interaction Registered: ");
+  Serial.println(interactionName);
+  #endif
 }
-void setup() {
-  // standard stuff here
-  
+void setup() {  
   pinMode(BUZZER_PIN, OUTPUT);
   Serial.begin(9600);
   FastLED.addLeds<WS2812B, DATA_PIN, BGR>(leds, NUM_LEDS);
@@ -423,7 +406,7 @@ void setup() {
 //   updateIndicator(homeBonus, true, CRGB::Green);
 //   updateIndicator(visitorBonus, true, CRGB::Green);
   FastLED.show();
-  delay(10000);
+  delay(8000);
   
   // if your web page or XML are large, you may not get a call back from the web page
   // and the ESP will think something has locked up and reboot the ESP
@@ -501,7 +484,7 @@ void loop() {
     if (bTimeRunning)
       {
         nSeconds--;
-        registerInteraction();
+        registerInteraction("Timer");
         if (nSeconds == 0)
         {
           bTimeRunning = false;
@@ -522,13 +505,17 @@ void loop() {
       bBuzzing = false;
     }
   }
-  if (millis() - LastInteraction > 1800000)
+  if ((millis() - LastInteraction > IDLE_MIN * 60000) && !offMode)
   {
     offMode = true;
+#ifdef ENABLE_LOGGING
+    Serial.println("Off Mode");
+#endif
     for (int i = 0; i < NUM_LEDS; i++)
     {
       leds[i] = offColor;
     }
+    FastLED.show();
     nPeriod = 1;
     nSeconds = 0; 
     nHomeScore = 0;
@@ -579,17 +566,7 @@ void SendXML() {
 void printWifiStatus() {
 
   // print the SSID of the network you're attached to:
-  Serial.print("SSID: ");
+  Serial.print("Connected: ");
   Serial.println(WiFi.SSID());
   Serial.print("["); Serial.print(AP_SSID); Serial.println("]");
-  // print your WiFi shield's IP address:
-  ip = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(ip);
-
-  // print the received signal strength:
-  long rssi = WiFi.RSSI();
-  Serial.print("signal strength (RSSI):");
-  Serial.print(rssi);
-  Serial.println(" dBm");
 }

@@ -2,6 +2,9 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
 
 <!DOCTYPE html>
 <html lang="en" class="js-focus-visible">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
 
 <title>Keverian Scoreboard Control</title>
 
@@ -9,6 +12,24 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
     html, body {
       margin: 0;
       padding: 0;
+    }
+    header:-moz-full-screen{
+    display:none;
+    }
+    header:-moz-fullscreen{
+        display:none;
+    }
+    header:-ms-fullscreen{
+        display:none;
+    }
+    header:-webkit-full-screen{
+        display:none;
+    }
+    header:-webkit-fullscreen{
+        display:none;
+    }
+    header:fullscreen{
+        display:none;
     }
     td {
       text-align: center;
@@ -29,7 +50,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       cursor: pointer;
     }
     .scorebtn {
-      background-color: #00000000;
+      background-color: #434343;
       border: none;
       color: rgb(255, 130, 5);
       text-align: center;
@@ -39,16 +60,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       font-size: 9vw; 
       height: 100%;
       width: 100%;
-      cursor: pointer;
-    }
-    .score {
-      color: rgb(180, 87, 44);
-      font-family: 'Courier New', monospace;
-      font-weight:bold;
-      /* font-size: 11vw;  */
-      text-align: center;
-      vertical-align: middle;
-      line-height: 100%;
+      cursor: default;
     }
     .dot {
       background-color:gray;
@@ -361,7 +373,6 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
     // server.on("/xml", SendXML);
     // otherwise the page will not request XML from the ESP, and updates will not happen
     function process(){
-     
      if(xmlHttp.readyState==0 || xmlHttp.readyState==4) {
         xmlHttp.open("PUT","xml",true);
         xmlHttp.onreadystatechange=response;
