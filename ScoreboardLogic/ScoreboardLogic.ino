@@ -12,6 +12,7 @@
 #define AP_PASS "PASSSWORD"
 #define IDLE_MIN 30
 // #define ENABLE_LOGGING // Comment/Uncomment to enable logging
+// #define MAINTENANCE_MODE // Comment/Uncomment to to hold fully lit
 
 #define NUM_LEDS 250
 #define DATA_PIN 3
@@ -21,7 +22,8 @@ const byte DNS_PORT = 53;
 DNSServer dnsServer;
 
 uint32_t BoardUpdate = 1000;
-uint32_t BuzzerDuration = 2000;
+uint32_t BuzzerDuration = 1000;
+uint32_t millisCache = 0;
 
 // the XML array size needs to be bigger that your maximum expected size.
 char XML[512];
@@ -231,7 +233,14 @@ void updateScoreboard()
     nSeconds = constrain(nSeconds, 0, 3600);
     int minutesCalc = nSeconds / 60;
     int secondsCalc = nSeconds % 60;
-
+#ifdef MAINTENANCE_MODE
+    nHomeScore = 188;
+    nVisitorScore = 188;
+    minutesCalc = 88;
+    secondsCalc = 88;
+    nPeriod = 8;
+    LastInteraction = millis();
+#endif
     updateDigit(homeScore, nHomeScore, CRGB::Red);
     updateDigit(visitorScore, nVisitorScore, CRGB::Red);
     updateDigit(timeMinutes, minutesCalc, CRGB::Yellow);
@@ -407,6 +416,7 @@ void setup() {
 //   updateIndicator(visitorBonus, true, CRGB::Green);
   FastLED.show();
   delay(8000);
+
   
   // if your web page or XML are large, you may not get a call back from the web page
   // and the ESP will think something has locked up and reboot the ESP
@@ -479,8 +489,17 @@ void setup() {
 }
 
 void loop() {
-  if ((millis() - BoardUpdate) >= 1000) {
-    BoardUpdate = millis();
+  // Eventually millis() loops back to 0
+  // Avoid getting stuck by resetting everything when it happens
+  if (millis() < millisCache)
+  {
+    BoardUpdate = 0;
+    LastInteraction = 0;
+    BuzzerStart = 0;
+  }
+  millisCache = millis();
+  if ((millisCache - BoardUpdate) >= 1000) {
+    BoardUpdate = millisCache;
     if (bTimeRunning)
       {
         nSeconds--;
@@ -495,7 +514,7 @@ void loop() {
   }
   if (bBuzzing)
   {
-    if (millis() - BuzzerStart < BuzzerDuration)
+    if (millisCache - BuzzerStart < BuzzerDuration)
     {
       digitalWrite(BUZZER_PIN, HIGH);
     }
@@ -505,7 +524,7 @@ void loop() {
       bBuzzing = false;
     }
   }
-  if ((millis() - LastInteraction > IDLE_MIN * 60000) && !offMode)
+  if ((millisCache - LastInteraction > IDLE_MIN * 60000) && !offMode)
   {
     offMode = true;
 #ifdef ENABLE_LOGGING
