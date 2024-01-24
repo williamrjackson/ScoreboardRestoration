@@ -133,63 +133,64 @@ struct DigitElement
    int baseOffset;
    bool hasOneHundred;
    int segmentedDigitCount;
+   CRGB defaultColor;
 };
 struct IndicatorElement
 {
   int baseOffset;
   int lightCount;
+  CRGB defaultColor;
 };
 
-DigitElement homeScore = {0, true, 2};
-DigitElement timeMinutes = {50, false, 2};
-DigitElement timeSeconds = {93, false, 2};
-DigitElement visitorScore = {136, true, 2};
-DigitElement period = {186, false, 1};
+DigitElement homeScore = {0, true, 2, CRGB::Red};
+DigitElement timeMinutes = {50, false, 2, CRGB::Yellow};
+DigitElement timeSeconds = {93, false, 2, CRGB::Yellow};
+DigitElement visitorScore = {136, true, 2, CRGB::Red};
+DigitElement period = {186, false, 1, CRGB::Green};
 
-IndicatorElement homeBonus = {236, 4};
-IndicatorElement visitorBonus = {240, 4};
-IndicatorElement homePosession = {244, 6};
-IndicatorElement visitorPosession = {249, 6};
+IndicatorElement homeBonus = {236, 4, CRGB::Green};
+IndicatorElement visitorBonus = {240, 4, CRGB::Green};
+IndicatorElement homePosession = {244, 6, CRGB::Red};
+IndicatorElement visitorPosession = {249, 6, CRGB::Red};
 
 CRGB leds[NUM_LEDS]; 
-CRGB onColor = CRGB::White;
 CRGB offColor = CRGB::Black;
 
-void stringToDigit(const char* str, int ledStartIndex, CRGB colorOverride)
+void stringToDigit(const char* str, int ledStartIndex, CRGB col)
 {
-  leds[ledStartIndex]    = str[0]   == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+1]  = str[4]   == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+2]  = str[8]   == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+3]  = str[12]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+4]  = str[16]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+5]  = str[20]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+6]  = str[24]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+7]  = str[25]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+8]  = str[26]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+9]  = str[27]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+10] = str[23]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+11] = str[19]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+12] = str[15]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+13] = str[11]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+14] = str[7]   == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+15] = str[3]   == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+16] = str[2]   == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+17] = str[1]   == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+19] = str[13]  == '#' ? colorOverride : offColor;
-  leds[ledStartIndex+20] = str[14]  == '#' ? colorOverride : offColor;
+  leds[ledStartIndex]    = str[0]   == '#' ? col : offColor;
+  leds[ledStartIndex+1]  = str[4]   == '#' ? col : offColor;
+  leds[ledStartIndex+2]  = str[8]   == '#' ? col : offColor;
+  leds[ledStartIndex+3]  = str[12]  == '#' ? col : offColor;
+  leds[ledStartIndex+4]  = str[16]  == '#' ? col : offColor;
+  leds[ledStartIndex+5]  = str[20]  == '#' ? col : offColor;
+  leds[ledStartIndex+6]  = str[24]  == '#' ? col : offColor;
+  leds[ledStartIndex+7]  = str[25]  == '#' ? col : offColor;
+  leds[ledStartIndex+8]  = str[26]  == '#' ? col : offColor;
+  leds[ledStartIndex+9]  = str[27]  == '#' ? col : offColor;
+  leds[ledStartIndex+10] = str[23]  == '#' ? col : offColor;
+  leds[ledStartIndex+11] = str[19]  == '#' ? col : offColor;
+  leds[ledStartIndex+12] = str[15]  == '#' ? col : offColor;
+  leds[ledStartIndex+13] = str[11]  == '#' ? col : offColor;
+  leds[ledStartIndex+14] = str[7]   == '#' ? col : offColor;
+  leds[ledStartIndex+15] = str[3]   == '#' ? col : offColor;
+  leds[ledStartIndex+16] = str[2]   == '#' ? col : offColor;
+  leds[ledStartIndex+17] = str[1]   == '#' ? col : offColor;
+  leds[ledStartIndex+19] = str[13]  == '#' ? col : offColor;
+  leds[ledStartIndex+20] = str[14]  == '#' ? col : offColor;
 }
 
 //*****************************************************
 void updateDigit(DigitElement el, int value)
 {
-  updateDigit(el, value, onColor);
+  updateDigit(el, value, el.defaultColor);
 }
-void updateDigit(DigitElement el, int value, CRGB colorOverride)
+void updateDigit(DigitElement el, int value, CRGB col)
 {
   int currentRoot = el.baseOffset;
   if (el.hasOneHundred)
   {
-    CRGB hundred = (value > 99) ? colorOverride : offColor;
+    CRGB hundred = (value > 99) ? col : offColor;
 
     for (int i = currentRoot; i < currentRoot + 7; i++) 
     {
@@ -200,21 +201,21 @@ void updateDigit(DigitElement el, int value, CRGB colorOverride)
   if (el.segmentedDigitCount > 1)
   {
     int tensIndex = (value / 10) % 10;
-    stringToDigit(numberConfigs[tensIndex], currentRoot, colorOverride);
+    stringToDigit(numberConfigs[tensIndex], currentRoot, col);
     currentRoot += 22;
   }
   int onesIndex = (value % 10);
-  stringToDigit(numberConfigs[onesIndex], currentRoot, colorOverride);
+  stringToDigit(numberConfigs[onesIndex], currentRoot, col);
 }
 
 void updateIndicator(IndicatorElement el, bool value)
 {
-  updateIndicator(el, value, onColor);
+  updateIndicator(el, value, el.defaultColor);
 }
-void updateIndicator(IndicatorElement el, bool value, CRGB colorOverride)
+void updateIndicator(IndicatorElement el, bool value, CRGB col)
 {
    for (int i = el.baseOffset; i < el.baseOffset + el.lightCount; i++) {
-     leds[i] = value ? colorOverride : offColor;
+     leds[i] = value ? col : offColor;
    }
 }
 
@@ -273,16 +274,16 @@ void updateScoreboard()
 #endif
       LastInteraction = millis() - (IDLE_MIN * 60000);
     }
-    updateDigit(homeScore, home, CRGB::Red);
-    updateDigit(visitorScore, visitor, CRGB::Red);
-    updateDigit(timeMinutes, minutesCalc, CRGB::Yellow);
-    updateDigit(timeSeconds, secondsCalc, CRGB::Yellow);
-    updateDigit(period, periodWrite, CRGB::Green);
+    updateDigit(homeScore, home);
+    updateDigit(visitorScore, visitor);
+    updateDigit(timeMinutes, minutesCalc);
+    updateDigit(timeSeconds, secondsCalc);
+    updateDigit(period, periodWrite);
 
-    updateIndicator(homePosession, pos != 1, CRGB::Red);
-    updateIndicator(visitorPosession, pos != 0, CRGB::Red);
-    updateIndicator(homeBonus, bonusHomeState, CRGB::Green);
-    updateIndicator(visitorBonus, bonusVisState, CRGB::Green);
+    updateIndicator(homePosession, pos != 1);
+    updateIndicator(visitorPosession, pos != 0);
+    updateIndicator(homeBonus, bonusHomeState);
+    updateIndicator(visitorBonus, bonusVisState);
 
     FastLED.show();
   }
@@ -363,7 +364,7 @@ void TimeChange(int seconds) {
   registerInteraction("TimeChange", seconds);
 }
 
-void TimerSetMinutes(int minutes) {
+void TimeSetMinutes(int minutes) {
   if (bTimeRunning) TimerStop();
   nSeconds = minutes * 60;
   nSeconds = constrain(nSeconds, 0, 6039);
@@ -426,15 +427,16 @@ void setup() {
   FastLED.addLeds<WS2812B, DATA_PIN, BGR>(leds, NUM_LEDS);
 
   // LED Boot Test:
-  updateDigit(homeScore, 188, CRGB::Red);
-  updateDigit(visitorScore, 188, CRGB::Red);
-  updateDigit(timeMinutes, 88, CRGB::Yellow);
-  updateDigit(timeSeconds, 88, CRGB::Yellow);
-  updateDigit(period, 8, CRGB::Green);
-//   updateIndicator(homePosession, true, CRGB::Red);
-//   updateIndicator(visitorPosession, true, CRGB::Red);
-//   updateIndicator(homeBonus, true, CRGB::Green);
-//   updateIndicator(visitorBonus, true, CRGB::Green);
+  updateDigit(homeScore, 188);
+  updateDigit(visitorScore, 188);
+  updateDigit(timeMinutes, 88);
+  updateDigit(timeSeconds, 88);
+  updateDigit(period, 8);
+  updateIndicator(homePosession, true);
+  updateIndicator(visitorPosession, true);
+  updateIndicator(homeBonus, true);
+  updateIndicator(visitorBonus, true);
+  
   FastLED.show();
   GenerateXML();
   delay(8000);
@@ -469,38 +471,40 @@ void setup() {
   // upon esp getting /XML string, ESP will build and send the XML, this is how we refresh
   // just parts of the web page
   server.on("/xml", SendXML);
-  server.on("/HomeScoreUp1", [](){ HomeScoreChange(1); });
-  server.on("/HomeScoreUp2", [](){ HomeScoreChange(2); });
-  server.on("/HomeScoreUp3", [](){ HomeScoreChange(3); });
-  server.on("/HomeScoreDown1", [](){ HomeScoreChange(-1); });
-  server.on("/HomeScoreReset", [](){ HomeScoreSet(0); });
-  server.on("/PeriodUp", PeriodChange);
-  server.on("/VisitorScoreUp1", [](){ VisitorScoreChange(1); });
-  server.on("/VisitorScoreUp2", [](){ VisitorScoreChange(2); });
-  server.on("/VisitorScoreUp3", [](){ VisitorScoreChange(3); });
-  server.on("/VisitorScoreDown1", [](){ VisitorScoreChange(-1); });
-  server.on("/VisitorScoreReset", [](){ VisitorScoreSet(0); });
+  server.on("/HomeScore", [](){ 
+    if (server.args())
+    {
+      int val = server.arg(0).toInt();
+      if (server.argName(0) == "change") HomeScoreChange(val);
+      else if (server.argName(0) == "set") HomeScoreSet(val);
+    }
+  });
+  server.on("/VisitorScore", [](){ 
+    if (server.args())
+    {
+      int val = server.arg(0).toInt();
+      if (server.argName(0) == "change") VisitorScoreChange(val);
+      else if (server.argName(0) == "set") VisitorScoreSet(val);
+    }
+  });
+  server.on("/Time", [](){ 
+    if (server.args())
+    {
+      int val = server.arg(0).toInt();
+      if (server.argName(0) == "change") TimeChange(val);
+      else if (server.argName(0) == "set") TimeSetMinutes(val);
+    }
+  });
+  server.on("/PeriodChange", PeriodChange);
   server.on("/HomeBonus", HomeBonus);
   server.on("/HomePos", HomePos);
   server.on("/VisitorPos", VisitorPos);
   server.on("/VisitorBonus", VisitorBonus);
   server.on("/StartStopTimer", StartStopTimer);
-  server.on("/TimeDn1", [](){ TimeChange(-1); });
-  server.on("/TimeDn10", [](){ TimeChange(-10); });
-  server.on("/TimeDn60", [](){ TimeChange(-60); });
-  server.on("/TimeUp60", [](){ TimeChange(60); });
-  server.on("/TimeUp10", [](){ TimeChange(10); });
-  server.on("/TimeUp1", [](){ TimeChange(1); });
-  server.on("/TimerSet0", [](){ TimerSetMinutes(0); });
-  server.on("/TimerSet2", [](){ TimerSetMinutes(2); });
-  server.on("/TimerSet10", [](){ TimerSetMinutes(10); });
-  server.on("/TimerSet12", [](){ TimerSetMinutes(12); });
-  server.on("/TimerSet20", [](){ TimerSetMinutes(20); });
   server.on("/Buzzer", Buzzer);
 
-  // replay to all requests with same HTML
   server.onNotFound(handleNotFound);
-  // finally begin the server
+
   server.begin();
 }
 

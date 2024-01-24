@@ -77,48 +77,48 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
   <table style="width: 100vw; height: 100vh;">
     <tbody>
         <tr>
-          <td colspan="6"><button style="color: rgb(247, 218, 100)" type="button" class="btn" onclick="StartStopTimer()"><span id="StartStopTimer">Run Timer</span><br>
+          <td colspan="6"><button style="color: rgb(247, 218, 100)" type="button" class="btn" onclick="StartStopTimer()"><span id="StartStopTimer">Tap to Run Timer</span><br>
           <span id= "timeDisp" style="font-size:200%">00:00</span></button></td>
         </tr>
         <tr>
-          <td><button type="button" class="btn" id="TimeDn1" onclick="TimeDn1()">-1</button></td>
-          <td><button type="button" class="btn" id="TimeDn10" onclick="TimeDn10()">-10</button></td>
-          <td><button type="button" class="btn" id="TimeDn60" onclick="TimeDn60()">-60</button></td>
-          <td><button type="button" class="btn" id="TimeUp60" onclick="TimeUp60()">+60</button></td>
-          <td><button type="button" class="btn" id="TimeUp10" onclick="TimeUp10()">+10</button></td>
-          <td><button type="button" class="btn" id="TimeUp1" onclick="TimeUp1()">+1</button></td>
+          <td><button type="button" class="btn" onclick="TimeChange(-1)">-1</button></td>
+          <td><button type="button" class="btn" onclick="TimeChange(-10)">-10</button></td>
+          <td><button type="button" class="btn" onclick="TimeChange(-60)">-60</button></td>
+          <td><button type="button" class="btn" onclick="TimeChange(60)">+60</button></td>
+          <td><button type="button" class="btn" onclick="TimeChange(10)">+10</button></td>
+          <td><button type="button" class="btn" onclick="TimeChange(1)">+1</button></td>
           <td></td>
         </tr>
         <tr>
-          <td><button type="button" class="btn" id="TimerSet12" onclick="TimerSet12()">Set<br>12:00</button></td>
-          <td><button type="button" class="btn" id="TimerSet10" onclick="TimerSet10()">Set<br>10:00</button></td>
-          <td colspan="2"><button type="button" class="btn" id="PeriodUp" style="color: rgb(192, 255, 239); height: 90%; width:90%;" onclick="PeriodUp()">Period<br><span id="periodDisp" style="font-size: 5vw">1</span></button></td>
-          <td><button type="button" class="btn" id="TimerSet2" onclick="TimerSet2()">Set<br>2:00</button></td>
-          <td><button type="button" class="btn" id="TimerSet20" onclick="TimerSet20()">Set<br>20:00</button></td>
+          <td><button type="button" class="btn" onclick="TimeSet(12)">Set<br>12:00</button></td>
+          <td><button type="button" class="btn" onclick="TimeSet(10)">Set<br>10:00</button></td>
+          <td colspan="2"><button type="button" class="btn" style="color: rgb(192, 255, 239); height: 90%; width:90%;" onclick="PeriodChange()">Period<br><span id="periodDisp" style="font-size: 5vw">1</span></button></td>
+          <td><button type="button" class="btn" onclick="TimeSet(2)">Set<br>2:00</button></td>
+          <td><button type="button" class="btn" onclick="TimeSet(20)">Set<br>20:00</button></td>
           <td></td>
         </tr>
         <tr>
           <td colspan="2"><button type="button" class="btn" id="homePosessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="HomePos()">Pos</button></td>
           <td><button type="button" class="btn" id="homeBonusDisp" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="HomeBonus()">Bonus</button></td>
           <td><button type="button" class="btn" id="visitorBonusDisp" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="VisitorBonus()">Bonus</button></td>
-          <td colspan="2"><button type="button" class="btn"  id="visitorPosessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="VisitorPos()">Pos</button></td>
+          <td colspan="2"><button type="button" class="btn" id="visitorPosessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="VisitorPos()">Pos</button></td>
         </tr>
         <tr>
-          <td><button type="button" class="btn" id="HomeScoreUp2" style="color: pink" onclick="HomeScoreUp2()">Score<br>+ 2</button></td>
+          <td><button type="button" class="btn" style="color: pink" onclick="HomeScoreChange(2)">Score<br>+ 2</button></td>
           <td colspan="4"><button type="button" class="scorebtn"><span id="ScoreDisp">00 - 00</span></button></td>
-          <td><button type="button" class="btn" id="VisitorScoreUp2" style="color: pink" onclick="VisitorScoreUp2()">Score<br>+ 2</button></td>
+          <td><button type="button" class="btn" style="color: pink" onclick="VisitorScoreChange(2)">Score<br>+ 2</button></td>
         </tr>
         <tr>              
-          <td><button type="button" class="btn" id="HomeScoreUp1" style="color: pink" onclick="HomeScoreUp1()">Score<br>+ 1</button></td>
-          <td><button type="button" class="btn" id="HomeScoreUp3" style="color: pink" onclick="HomeScoreUp3()">Score<br>+ 3</button></td>
-          <td colspan="2" rowspan="2"><button type="button" class="btn" id="Buzzer" style="color: rgb(192, 255, 239); height: 50%; width:80%;" onclick="Buzzer()">Buzzer</button></td>
-          <td><button type="button" class="btn" id="VisitorScoreUp3" style="color: pink" onclick="VisitorScoreUp3()">Score<br>+ 3</button></td>
-          <td><button type="button" class="btn" id="VisitorScoreUp1" style="color: pink" onclick="VisitorScoreUp1()">Score<br>+ 1</button></td>
+          <td><button type="button" class="btn" style="color: pink" onclick="HomeScoreChange(1)">Score<br>+ 1</button></td>
+          <td><button type="button" class="btn" style="color: pink" onclick="HomeScoreChange(3)">Score<br>+ 3</button></td>
+          <td colspan="2" rowspan="2"><button type="button" class="btn" style="color: rgb(192, 255, 239); height: 50%; width:80%;" onclick="Buzzer()">Buzzer</button></td>
+          <td><button type="button" class="btn" style="color: pink" onclick="VisitorScoreChange(3)">Score<br>+ 3</button></td>
+          <td><button type="button" class="btn" style="color: pink" onclick="VisitorScoreChange(1)">Score<br>+ 1</button></td>
         </tr>
-        <td><button type="button" class="btn" id="HomeScoreDown1" style="color: pink" onclick="HomeScoreDown1()">Score<br> - 1</button></td>
-        <td><button type="button" class="btn" id="HomeScoreReset" style="color: pink" onclick="HomeScoreReset()">Reset<br>0</button></td>
-        <td><button type="button" class="btn" id="VisitorScoreReset" style="color: pink" onclick="VisitorScoreReset()">Reset<br>0</button></td>
-        <td><button type="button" class="btn" id="VisitorScoreDown1" style="color: pink" onclick="VisitorScoreDown1()">Score<br>- 1</button></td>
+        <td><button type="button" class="btn" style="color: pink" onclick="HomeScoreChange(-1)">Score<br> - 1</button></td>
+        <td><button type="button" class="btn" style="color: pink" onclick="HomeScoreSet(0)">Reset<br>0</button></td>
+        <td><button type="button" class="btn" style="color: pink" onclick="VisitorScoreSet(0)">Reset<br>0</button></td>
+        <td><button type="button" class="btn" style="color: pink" onclick="VisitorScoreChange(-1)">Score<br>- 1</button></td>
       </tr>
     </tbody>
   </table>
@@ -138,171 +138,69 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       return xmlHttp;
     }
 
-    function HomeScoreUp1() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "HomeScoreUp1", false);
+    function HomeScoreChange(amt) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("PUT", "HomeScore?change="+amt, false);
       xhttp.send();
     }
-    function HomeScoreUp2() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "HomeScoreUp2", false);
+    function HomeScoreSet(val) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("PUT", "HomeScore?set="+val, false);
       xhttp.send();
     }
-    function HomeScoreUp3() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "HomeScoreUp3", false);
+    function VisitorScoreChange(amt) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("PUT", "VisitorScore?change="+amt, false);
       xhttp.send();
     }
-    function HomeScoreReset() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "HomeScoreReset", false);
+    function VisitorScoreSet(val) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("PUT", "VisitorScore?set="+val, false);
       xhttp.send();
     }
-    function HomeScoreDown1() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "HomeScoreDown1", false);
+    function TimeChange(amt) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("PUT", "Time?change="+amt, false);
       xhttp.send();
     }
-    function PeriodUp() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "PeriodUp", false);
+    function TimeSet(val) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("PUT", "Time?set="+val, false);
       xhttp.send();
     }
-    function VisitorScoreDown1() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "VisitorScoreDown1", false);
-      xhttp.send();
-    }
-    function VisitorScoreUp1() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "VisitorScoreUp1", false);
-      xhttp.send();
-    }
-    function VisitorScoreUp2() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "VisitorScoreUp2", false);
-      xhttp.send();
-    }
-    function VisitorScoreUp3() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "VisitorScoreUp3", false);
-      xhttp.send();
-    }
-    function VisitorScoreReset() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "VisitorScoreReset", false);
+    function PeriodChange() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("PUT", "PeriodChange", false);
       xhttp.send();
     }
     function HomeBonus() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
+      var xhttp = new XMLHttpRequest();
       xhttp.open("PUT", "HomeBonus", false);
       xhttp.send();
     }
     function HomePos() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
+      var xhttp = new XMLHttpRequest();
       xhttp.open("PUT", "HomePos", false);
       xhttp.send();
     }
     function VisitorPos() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
+      var xhttp = new XMLHttpRequest();
       xhttp.open("PUT", "VisitorPos", false);
       xhttp.send();
     }
     function VisitorBonus() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
+      var xhttp = new XMLHttpRequest();
       xhttp.open("PUT", "VisitorBonus", false);
       xhttp.send();
     }
     function StartStopTimer() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
+      var xhttp = new XMLHttpRequest();
       xhttp.open("PUT", "StartStopTimer", false);
       xhttp.send();
     }
-    function TimeDn1() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "TimeDn1", false);
-      xhttp.send();
-    }
-    function TimeDn10() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "TimeDn10", false);
-      xhttp.send();
-    }
-    function TimeDn60() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "TimeDn60", false);
-      xhttp.send();
-    }
-    function TimeUp60() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "TimeUp60", false);
-      xhttp.send();
-    }
-    function TimeUp10() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "TimeUp10", false);
-      xhttp.send();
-    }
-    function TimeUp1() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "TimeUp1", false);
-      xhttp.send();
-    }
-    function TimerSet12() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "TimerSet12", false);
-      xhttp.send();
-    }
-    function TimerSet10() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "TimerSet10", false);
-      xhttp.send();
-    }
-    function TimerSet0() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "TimerSet0", false);
-      xhttp.send();
-    }
-    function TimerSet2() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "TimerSet2", false);
-      xhttp.send();
-    }
-    function TimerSet20() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
-      xhttp.open("PUT", "TimerSet20", false);
-      xhttp.send();
-    }
+    
     function Buzzer() {
-      var xhttp = new XMLHttpRequest(); 
-      var message;
+      var xhttp = new XMLHttpRequest();
       xhttp.open("PUT", "Buzzer", false);
       xhttp.send();
     }
@@ -361,10 +259,10 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       xmldoc = xmlResponse.getElementsByTagName("TimerRunning");
       message = xmldoc[0].firstChild.nodeValue;
       if (message == 1){
-        document.getElementById("StartStopTimer").innerHTML="Stop Timer";
+        document.getElementById("StartStopTimer").innerHTML="Tap to Pause Timer";
       }
       else {
-        document.getElementById("StartStopTimer").innerHTML="Run Timer";
+        document.getElementById("StartStopTimer").innerHTML="Tap to Run Timer";
       }
     }
   
