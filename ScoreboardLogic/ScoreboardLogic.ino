@@ -12,32 +12,40 @@
 #define AP_PASS "PASSSWORD"
 #define IDLE_MIN 30
 // #define ENABLE_LOGGING // Comment/Uncomment to enable logging
-// #define MAINTENANCE_MODE // Comment/Uncomment to to hold fully lit
 
-#define NUM_LEDS 250
+#define NUM_LEDS 254
 #define DATA_PIN 3
 #define BUZZER_PIN 5
 
 const byte DNS_PORT = 53;
 DNSServer dnsServer;
 
-uint32_t BoardUpdate = 1000;
-uint32_t BuzzerDuration = 1000;
-uint32_t millisCache = 0;
-
-// the XML array size needs to be bigger that your maximum expected size.
-char XML[512];
-
-// just some buffer holder for char operations
-char buf[32];
-
-// variable for the IP reported when you connect to your homes intranet (during debug mode)
 IPAddress apIP(172, 217, 28, 1);
 IPAddress ip;
 
 // gotta create a server
 WebServer server(80);
 
+// the XML array size needs to be bigger that your maximum expected size.
+char XML[256];
+// buffer for XML char operations
+char buf[32];
+
+uint32_t BoardUpdate = 1000;
+uint32_t BuzzerDuration = 1000;
+uint32_t millisCache = 0;
+
+//  LED Layout:
+//
+//  6   0  17  16  15
+//  5   1          14
+//  4   2          13
+//  3   3  19  20  12
+//  2   4          11
+//  1   5          10
+//  0   6  7   8   9
+
+// Digit LED Configs
 const char* zero =   "####"
                      "#..#"
                      "#..#"
@@ -117,6 +125,7 @@ const char* nine =   "####"
                      "...#" 
                      "...#" 
                      "####";
+// Access each map by corresponding index
 const char* numberConfigs[] {zero, one, two, three, four, five, six, seven, eight, nine};
 
 struct DigitElement
@@ -137,10 +146,10 @@ DigitElement timeSeconds = {93, false, 2};
 DigitElement visitorScore = {136, true, 2};
 DigitElement period = {186, false, 1};
 
-IndicatorElement homeBonus = {209, 4};
-IndicatorElement visitorBonus = {174, 4};
-IndicatorElement homePosession = {203, 6};
-IndicatorElement visitorPosession = {177, 6};
+IndicatorElement homeBonus = {236, 4};
+IndicatorElement visitorBonus = {240, 4};
+IndicatorElement homePosession = {244, 6};
+IndicatorElement visitorPosession = {249, 6};
 
 CRGB leds[NUM_LEDS]; 
 CRGB onColor = CRGB::White;
@@ -211,168 +220,156 @@ void updateIndicator(IndicatorElement el, bool value, CRGB colorOverride)
 
 //********************************************************
 int nPeriod = 1;
+// Total seconds on clock
 int nSeconds = 0; 
 int nHomeScore = 0;
 int nVisitorScore = 0;
 bool bBonusHome = false;
 bool bBonusVisitor = false;
-int nPos = 0; // 0 home; 1 visitors
+// Possession: 0 home; 1 visitors; 2 both for all-on mode
+int nPos = 0; 
 bool bTimeRunning = false;
 bool bBuzzing = false;
 uint32_t BuzzerStart = 0;
 uint32_t LastInteraction = 0;
 bool offMode = false;
+// To to hold fully lit - requires 6 consecutive "HomeScoreSet: 0" commands.
+int nConsecutiveResets = 0; 
 
 void updateScoreboard()
 {
   if (!offMode)
   {
-    nHomeScore = constrain(nHomeScore, 0, 199);
-    nVisitorScore = constrain(nVisitorScore, 0, 199);
-    nPeriod = constrain(nPeriod, 0, 9);
-    nSeconds = constrain(nSeconds, 0, 3600);
+    int home = constrain(nHomeScore, 0, 199);
+    int visitor = constrain(nVisitorScore, 0, 199);
+    int periodWrite = constrain(nPeriod, 0, 9);
+    int seconds = constrain(nSeconds, 0, 6039);
+    int pos = constrain(nPos, 0, 2);
     int minutesCalc = nSeconds / 60;
     int secondsCalc = nSeconds % 60;
-#ifdef MAINTENANCE_MODE
-    nHomeScore = 188;
-    nVisitorScore = 188;
-    minutesCalc = 88;
-    secondsCalc = 88;
-    nPeriod = 8;
-    LastInteraction = millis();
+    bool bonusHomeState = bBonusHome;
+    bool bonusVisState = bBonusVisitor;
+
+    if (nConsecutiveResets == 6)
+    {
+#ifdef ENABLE_LOGGING
+      Serial.println("[Secret Maintenance Mode]");
 #endif
-    updateDigit(homeScore, nHomeScore, CRGB::Red);
-    updateDigit(visitorScore, nVisitorScore, CRGB::Red);
+      home = 188;
+      visitor = 188;
+      minutesCalc = 88;
+      secondsCalc = 88;
+      periodWrite = 8;
+      pos = 2;
+      bonusHomeState = true;
+      bonusVisState = true;
+
+      LastInteraction = millis();
+    }
+    if (nConsecutiveResets > 6)
+    {
+#ifdef ENABLE_LOGGING
+      Serial.println("[Secret Force Off]");
+#endif
+      LastInteraction = millis() - (IDLE_MIN * 60000);
+    }
+    updateDigit(homeScore, home, CRGB::Red);
+    updateDigit(visitorScore, visitor, CRGB::Red);
     updateDigit(timeMinutes, minutesCalc, CRGB::Yellow);
     updateDigit(timeSeconds, secondsCalc, CRGB::Yellow);
-    updateDigit(period, nPeriod, CRGB::Green);
+    updateDigit(period, periodWrite, CRGB::Green);
 
-    // updateIndicator(homePosession, nPos == 0, CRGB::Red);
-    // updateIndicator(visitorPosession, nPos == 1, CRGB::Red);
-    // updateIndicator(homeBonus, bBonusHome == -1, CRGB::Green);
-    // updateIndicator(visitorBonus, bBonusVisitor, CRGB::Green);
+    updateIndicator(homePosession, pos != 1, CRGB::Red);
+    updateIndicator(visitorPosession, pos != 0, CRGB::Red);
+    updateIndicator(homeBonus, bonusHomeState, CRGB::Green);
+    updateIndicator(visitorBonus, bonusVisState, CRGB::Green);
 
     FastLED.show();
   }
 }
 
-void HomeScoreUp1() {
-  nHomeScore++;
-  registerInteraction("HomeScoreUp1");
+void HomeScoreChange(int amt) {
+  nHomeScore += amt;
+  nHomeScore = constrain(nHomeScore, 0, 199);
+  registerInteraction("HomeScoreChange", amt);
 }
-void HomeScoreUp2() {
-  nHomeScore += 2;
-  registerInteraction("HomeScoreUp2");
+
+void HomeScoreSet(int val) {
+  nHomeScore = val;
+  nHomeScore = constrain(nHomeScore, 0, 199);
+  registerInteraction("HomeScoreSet", val);
 }
-void HomeScoreUp3() {
-  nHomeScore += 3;
-  registerInteraction("HomeScoreUp3");
-}
-void HomeScoreReset() {
-  nHomeScore = 0;
-  registerInteraction("HomeScoreReset");
-}
-void HomeScoreDown1() {
-  nHomeScore--;
-  registerInteraction("HomeScoreDown1");
-}
-void PeriodUp() {
+
+void PeriodChange() {
   nPeriod++;
-  if (nPeriod > 6)
+  if (nPeriod > 6 || nPeriod < 1)
   {
     nPeriod = 1;
   }
-  registerInteraction("PeriodUp");
+  registerInteraction("PeriodChange");
 }
-void VisitorScoreDown1() {
-  nVisitorScore--;
-  registerInteraction("VisitorScoreDown1");
+
+void VisitorScoreChange(int amt) {
+  nVisitorScore += amt;
+  nVisitorScore = constrain(nVisitorScore, 0, 199);
+  registerInteraction("VisitorScoreChange", amt);
 }
-void VisitorScoreReset() {
-  nVisitorScore = 0;
-  registerInteraction("VisitorScoreReset");
+
+void VisitorScoreSet(int val) {
+  nVisitorScore = val;
+  nVisitorScore = constrain(nVisitorScore, 0, 199);
+  registerInteraction("VisitorScoreSet", val);
 }
-void VisitorScoreUp1() {
-  nVisitorScore++;
-  registerInteraction("VisitorScoreUp1");
-}
-void VisitorScoreUp2() {
-  nVisitorScore += 2;
-  registerInteraction("VisitorScoreUp2");
-}
-void VisitorScoreUp3() {
-  nVisitorScore += 3;
-  registerInteraction("VisitorScoreUp3");
-}
+
 void HomeBonus() {
   bBonusHome = !bBonusHome;
   registerInteraction("HomeBonus");
 }
+
 void HomePos() {
   nPos = 0;
   registerInteraction("HomePos");
 }
+
 void VisitorPos() {
   nPos = 1;
   registerInteraction("VisitorPos");
 }
+
 void VisitorBonus() {
   bBonusVisitor = !bBonusVisitor;
   registerInteraction("VisitorBonus");
 }
+
 void StartStopTimer() {
-  bTimeRunning = !bTimeRunning;
-  registerInteraction("StartStopTimer");
+  if (bTimeRunning) {
+    TimerStop();
+  } else {
+    TimerStart();
+  }
 }
-void TimeDn1() {
-  nSeconds--;
-  registerInteraction("TimeDn1");
+void TimerStart() {
+  bTimeRunning = true;
+  registerInteraction("TimerState", 1);
 }
-void TimeDn10() {
-  nSeconds-=10;
-  registerInteraction("TimeDn10");
-}
-void TimeDn60() {
-  nSeconds-=60;
-  registerInteraction("TimeDn60");
-}
-void TimeUp60() {
-  nSeconds+=60;
-  registerInteraction("TimeUp60");
-}
-void TimeUp10() {
-  nSeconds+=10;
-  registerInteraction("TimeUp10");
-}
-void TimeUp1() {
-  nSeconds++;
-  registerInteraction("TimeUp1");
-}
-void TimerSet12() {
+void TimerStop() {
   bTimeRunning = false;
-  nSeconds = 720;
-  registerInteraction("TimerSet12");
+  registerInteraction("TimerState", 0);
 }
-void TimerSet10() {
-  bTimeRunning = false;
-  nSeconds = 600;
-  registerInteraction("TimerSet10");
+
+void TimeChange(int seconds) {
+  nSeconds += seconds;
+  nSeconds = constrain(nSeconds, 0, 6039);
+  registerInteraction("TimeChange", seconds);
 }
-void TimerSet0() {
-  bTimeRunning = false;
-  nSeconds = 0;
-  registerInteraction("TimerSet0");
+
+void TimerSetMinutes(int minutes) {
+  if (bTimeRunning) TimerStop();
+  nSeconds = minutes * 60;
+  nSeconds = constrain(nSeconds, 0, 6039);
+  registerInteraction("TimerSet", nSeconds / 60);
 }
-void TimerSet2() {
-  bTimeRunning = false;
-  nSeconds = 120;
-  registerInteraction("TimerSet2");
-}
-void TimerSet20() {
-  bTimeRunning = false;
-  nSeconds = 1200;
-  registerInteraction("TimerSet20");
-}
+
 void Buzzer() {
   if (!bBuzzing)
   {
@@ -384,8 +381,31 @@ void Buzzer() {
 void handleNotFound() {
   server.send(200, "text/plain", "");
 }
+
+void registerInteraction(const char interactionName[], int value)
+{
+  char interactionValue[64];
+  sprintf(interactionValue, "%s: %d", interactionName, value);
+  registerInteraction(interactionValue);
+}
 void registerInteraction(const char interactionName[]) {
+  GenerateXML();
   LastInteraction = millis();
+  // Count HomeScoreReset presses to enter 
+  // Off(7) or Maintenance(6) Mode
+  if (strcmp(interactionName, "HomeScoreSet: 0") == 0)
+  {
+    nConsecutiveResets++;
+#ifdef ENABLE_LOGGING
+    Serial.print("Consecutive Resets: ");
+    Serial.println(nConsecutiveResets);
+#endif
+  }
+  else
+  {
+    nConsecutiveResets = 0;
+  }
+
   if (offMode)
   {
 #ifdef ENABLE_LOGGING
@@ -394,10 +414,11 @@ void registerInteraction(const char interactionName[]) {
     offMode = false;
   }
   server.send(200, "text/plain", "");
-  #ifdef ENABLE_LOGGING
-  Serial.print("Interaction Registered: ");
-  Serial.println(interactionName);
-  #endif
+#ifdef ENABLE_LOGGING
+  Serial.print("Interaction Registered [");
+  Serial.print(interactionName);
+  Serial.println("]");
+#endif
 }
 void setup() {  
   pinMode(BUZZER_PIN, OUTPUT);
@@ -415,17 +436,16 @@ void setup() {
 //   updateIndicator(homeBonus, true, CRGB::Green);
 //   updateIndicator(visitorBonus, true, CRGB::Green);
   FastLED.show();
+  GenerateXML();
   delay(8000);
 
-  
-  // if your web page or XML are large, you may not get a call back from the web page
+  // if the page or XML are large, you may not get a call back from the web page
   // and the ESP will think something has locked up and reboot the ESP
   // not sure I like this feature, actually I kinda hate it
   // disable watch dog timer 0
-  disableCore0WDT();
-  // maybe disable watch dog timer 1 if needed
+  // disableCore0WDT();
   // disableCore1WDT();
-
+  
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
   delay(100);
@@ -435,10 +455,10 @@ void setup() {
   // Set up mDNS responder:
   //   the fully-qualified domain name is "scoreboard.local"
   if (!MDNS.begin("scoreboard")) {
-      Serial.println("Error setting up MDNS responder!");
-      while(1) {
-          delay(1000);
-      }
+    Serial.println("Error setting up MDNS responder!");
+    while(1) {
+      delay(1000);
+    }
   }
   
   printWifiStatus();
@@ -446,44 +466,40 @@ void setup() {
   // these calls will handle data coming back from your web page
   // this one is a page request, upon ESP getting / string the web page will be sent
   server.on("/", SendWebsite);
-
   // upon esp getting /XML string, ESP will build and send the XML, this is how we refresh
   // just parts of the web page
   server.on("/xml", SendXML);
-
-  server.on("/HomeScoreUp1", HomeScoreUp1);
-  server.on("/HomeScoreUp2", HomeScoreUp2);
-  server.on("/HomeScoreUp3", HomeScoreUp3);
-  server.on("/HomeScoreReset", HomeScoreReset);
-  server.on("/HomeScoreDown1", HomeScoreDown1);
-  server.on("/PeriodUp", PeriodUp);
-  server.on("/VisitorScoreDown1", VisitorScoreDown1);
-  server.on("/VisitorScoreReset", VisitorScoreReset);
-  server.on("/VisitorScoreUp1", VisitorScoreUp1);
-  server.on("/VisitorScoreUp2", VisitorScoreUp2);
-  server.on("/VisitorScoreUp3", VisitorScoreUp3);
+  server.on("/HomeScoreUp1", [](){ HomeScoreChange(1); });
+  server.on("/HomeScoreUp2", [](){ HomeScoreChange(2); });
+  server.on("/HomeScoreUp3", [](){ HomeScoreChange(3); });
+  server.on("/HomeScoreDown1", [](){ HomeScoreChange(-1); });
+  server.on("/HomeScoreReset", [](){ HomeScoreSet(0); });
+  server.on("/PeriodUp", PeriodChange);
+  server.on("/VisitorScoreUp1", [](){ VisitorScoreChange(1); });
+  server.on("/VisitorScoreUp2", [](){ VisitorScoreChange(2); });
+  server.on("/VisitorScoreUp3", [](){ VisitorScoreChange(3); });
+  server.on("/VisitorScoreDown1", [](){ VisitorScoreChange(-1); });
+  server.on("/VisitorScoreReset", [](){ VisitorScoreSet(0); });
   server.on("/HomeBonus", HomeBonus);
   server.on("/HomePos", HomePos);
   server.on("/VisitorPos", VisitorPos);
   server.on("/VisitorBonus", VisitorBonus);
   server.on("/StartStopTimer", StartStopTimer);
-  server.on("/TimeDn1", TimeDn1);
-  server.on("/TimeDn10", TimeDn10);
-  server.on("/TimeDn60", TimeDn60);
-  server.on("/TimeUp60", TimeUp60);
-  server.on("/TimeUp10", TimeUp10);
-  server.on("/TimeUp1", TimeUp1);
-  server.on("/TimerSet12", TimerSet12);
-  server.on("/TimerSet10", TimerSet10);
-  server.on("/TimerSet0", TimerSet0);
-  server.on("/TimerSet2", TimerSet2);
-  server.on("/TimerSet20", TimerSet20);
+  server.on("/TimeDn1", [](){ TimeChange(-1); });
+  server.on("/TimeDn10", [](){ TimeChange(-10); });
+  server.on("/TimeDn60", [](){ TimeChange(-60); });
+  server.on("/TimeUp60", [](){ TimeChange(60); });
+  server.on("/TimeUp10", [](){ TimeChange(10); });
+  server.on("/TimeUp1", [](){ TimeChange(1); });
+  server.on("/TimerSet0", [](){ TimerSetMinutes(0); });
+  server.on("/TimerSet2", [](){ TimerSetMinutes(2); });
+  server.on("/TimerSet10", [](){ TimerSetMinutes(10); });
+  server.on("/TimerSet12", [](){ TimerSetMinutes(12); });
+  server.on("/TimerSet20", [](){ TimerSetMinutes(20); });
   server.on("/Buzzer", Buzzer);
 
   // replay to all requests with same HTML
-  server.onNotFound([]() {
-      server.send(200, "text/html", PAGE_MAIN);
-  });
+  server.onNotFound(handleNotFound);
   // finally begin the server
   server.begin();
 }
@@ -493,28 +509,30 @@ void loop() {
   // Avoid getting stuck by resetting everything when it happens
   if (millis() < millisCache)
   {
+#ifdef ENABLE_LOGGING
+  Serial.println("Millis Loop");
+#endif
     BoardUpdate = 0;
     LastInteraction = 0;
     BuzzerStart = 0;
   }
   millisCache = millis();
-  if ((millisCache - BoardUpdate) >= 1000) {
-    BoardUpdate = millisCache;
+  if ((millis() - BoardUpdate) >= 1000) {
+    BoardUpdate = millis();
     if (bTimeRunning)
+    {
+      TimeChange(-1);
+      if (nSeconds == 0)
       {
-        nSeconds--;
-        registerInteraction("Timer");
-        if (nSeconds == 0)
-        {
-          bTimeRunning = false;
-          Buzzer();
-        }
+        TimerStop();
+        Buzzer();
       }
-      updateScoreboard();
+    }
+    updateScoreboard();
   }
   if (bBuzzing)
   {
-    if (millisCache - BuzzerStart < BuzzerDuration)
+    if (millis() - BuzzerStart < BuzzerDuration)
     {
       digitalWrite(BUZZER_PIN, HIGH);
     }
@@ -524,17 +542,24 @@ void loop() {
       bBuzzing = false;
     }
   }
-  if ((millisCache - LastInteraction > IDLE_MIN * 60000) && !offMode)
+  if ((millis() - LastInteraction > IDLE_MIN * 60000) && !offMode)
   {
     offMode = true;
 #ifdef ENABLE_LOGGING
-    Serial.println("Off Mode");
+    Serial.print("Off Mode: ");
+    Serial.print(millis());
+    Serial.print(" - ");
+    Serial.print(LastInteraction);
+    Serial.print("(");
+    Serial.print(millis() - LastInteraction);
+    Serial.println(")");
 #endif
     for (int i = 0; i < NUM_LEDS; i++)
     {
       leds[i] = offColor;
     }
     FastLED.show();
+    nConsecutiveResets = 0;
     nPeriod = 1;
     nSeconds = 0; 
     nHomeScore = 0;
@@ -542,6 +567,7 @@ void loop() {
     bBonusHome = false;
     bBonusVisitor = false;
     nPos = 0; // 0 home; 1 visitors
+    GenerateXML();
   }
   // call handleClient repeatedly--otherwise the web page
   // will not get instructions
@@ -549,16 +575,19 @@ void loop() {
   dnsServer.processNextRequest();
 }
 
-void SendWebsite() 
-{
-  // you may have to play with this value, big pages need more porcessing time, and hence
-  // a longer timeout that 200 ms
+void SendWebsite() {
   server.send(200, "text/html", PAGE_MAIN);
 }
 
 // code to send the main web page
 void SendXML() {
-  // Serial.println("sending xml");
+    server.send(200, "text/xml", XML);
+}
+
+void GenerateXML() {
+#ifdef ENABLE_LOGGING
+  Serial.println("Generating xml...");
+#endif
   strcpy(XML, "<?xml version = '1.0'?>\n<Data>\n");
   sprintf(buf, "<Time>%02d:%02d</Time>\n", nSeconds / 60, nSeconds % 60);
   strcat(XML, buf);
@@ -575,15 +604,12 @@ void SendXML() {
   sprintf(buf, "<TimerRunning>%d</TimerRunning>\n", bTimeRunning ? 1 : 0);
   strcat(XML, buf);
   strcat(XML, "</Data>\n");
-  // Serial.println(XML);
-  // you may have to play with this value, big pages need more porcessing time, and hence
-  // a longer timeout that 200 ms
-  server.send(200, "text/xml", XML);
+#ifdef ENABLE_LOGGING
+  Serial.println(XML);
+#endif
 }
 
-// I think I got this code from the wifi example
 void printWifiStatus() {
-
   // print the SSID of the network you're attached to:
   Serial.print("Connected: ");
   Serial.println(WiFi.SSID());

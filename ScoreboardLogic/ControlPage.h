@@ -64,14 +64,11 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
     }
     .dot {
       background-color:gray;
-      /* display:block; */
       height:25px;
       width:25px;
       border-radius:50%;
       border:2px solid #000;
-      /* margin:auto; */
       line-height:50px;
-      /* text-align:center */
     }
     
   </style>
@@ -315,7 +312,10 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       var message;
       var xmlResponse;
       var xmldoc;
-     
+      buttonOffColor = "rgb(39, 39, 39)";
+      posOnColor = "rgb(93, 76, 52)";
+      bonusOnColor = "rgb(66, 78, 37)";
+
       // get the xml stream
       xmlResponse=xmlHttp.responseXML;
   
@@ -333,29 +333,30 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
 
       xmldoc = xmlResponse.getElementsByTagName("Pos");
       message = xmldoc[0].firstChild.nodeValue;
-      if (message == 0){
-        document.getElementById("visitorPosessionDisp").style.backgroundColor="rgb(39, 39, 39)"; 
-        document.getElementById("homePosessionDisp").style.backgroundColor="rgb(93, 76, 52)";
+      if (message == 0) {
+        document.getElementById("homePosessionDisp").style.backgroundColor=posOnColor;
+        document.getElementById("visitorPosessionDisp").style.backgroundColor=buttonOffColor; 
       }
       else {
-        document.getElementById("visitorPosessionDisp").style.backgroundColor="rgb(93, 76, 52)";
-        document.getElementById("homePosessionDisp").style.backgroundColor="rgb(39, 39, 39)";
+        document.getElementById("homePosessionDisp").style.backgroundColor=buttonOffColor;
+        document.getElementById("visitorPosessionDisp").style.backgroundColor=posOnColor;
       }
+
       xmldoc = xmlResponse.getElementsByTagName("HomeBonus");
       message = xmldoc[0].firstChild.nodeValue;
-      if (message == 1){
-        document.getElementById("homeBonusDisp").style.backgroundColor="rgb(66, 78, 37)";
+      if (message == 1) {
+        document.getElementById("homeBonusDisp").style.backgroundColor=bonusOnColor;
       }
       else {
-        document.getElementById("homeBonusDisp").style.backgroundColor="rgb(39, 39, 39)";
+        document.getElementById("homeBonusDisp").style.backgroundColor=buttonOffColor;
       }
             xmldoc = xmlResponse.getElementsByTagName("VisitorBonus");
       message = xmldoc[0].firstChild.nodeValue;
       if (message == 1){
-        document.getElementById("visitorBonusDisp").style.backgroundColor="rgb(66, 78, 37)"; 
+        document.getElementById("visitorBonusDisp").style.backgroundColor=bonusOnColor; 
       }
       else {
-        document.getElementById("visitorBonusDisp").style.backgroundColor="rgb(39, 39, 39)"; 
+        document.getElementById("visitorBonusDisp").style.backgroundColor=buttonOffColor; 
       }
       xmldoc = xmlResponse.getElementsByTagName("TimerRunning");
       message = xmldoc[0].firstChild.nodeValue;
