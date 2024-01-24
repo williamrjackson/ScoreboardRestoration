@@ -8,6 +8,7 @@ Scoreboard appears as a WiFi Access Point. Display panels are lit using WS2812b 
 
 ## Mobile Control Panel:
 Control page hosted at http://scoreboard.local
+    
 ![Mobile Web Controller](Controller.png)
 
 ## Commands:
