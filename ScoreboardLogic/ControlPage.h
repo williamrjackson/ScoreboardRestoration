@@ -98,10 +98,10 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
           <td></td>
         </tr>
         <tr>
-          <td colspan="2"><button type="button" class="btn" id="homePosessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="HomePos()">Pos</button></td>
+          <td colspan="2"><button type="button" class="btn" id="homePosessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="PossessionSet(0)">Pos</button></td>
           <td><button type="button" class="btn" id="homeBonusDisp" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="HomeBonus()">Bonus</button></td>
           <td><button type="button" class="btn" id="visitorBonusDisp" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="VisitorBonus()">Bonus</button></td>
-          <td colspan="2"><button type="button" class="btn" id="visitorPosessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="VisitorPos()">Pos</button></td>
+          <td colspan="2"><button type="button" class="btn" id="visitorPosessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="PossessionSet(1)">Pos</button></td>
         </tr>
         <tr>
           <td><button type="button" class="btn" style="color: pink" onclick="HomeScoreChange(2)">Score<br>+ 2</button></td>
@@ -168,6 +168,11 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       xhttp.open("PUT", "Time?set="+val, false);
       xhttp.send();
     }
+    function PossessionSet(val) { // 0=Home; 1=Visitors
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("PUT", "Possession?set="+val, false);
+      xhttp.send();
+    }
     function PeriodChange() {
       var xhttp = new XMLHttpRequest();
       xhttp.open("PUT", "PeriodChange", false);
@@ -176,16 +181,6 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
     function HomeBonus() {
       var xhttp = new XMLHttpRequest();
       xhttp.open("PUT", "HomeBonus", false);
-      xhttp.send();
-    }
-    function HomePos() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.open("PUT", "HomePos", false);
-      xhttp.send();
-    }
-    function VisitorPos() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.open("PUT", "VisitorPos", false);
       xhttp.send();
     }
     function VisitorBonus() {
@@ -272,7 +267,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
     // server.on("/xml", SendXML);
     // otherwise the page will not request XML from the ESP, and updates will not happen
     function process(){
-     if(xmlHttp.readyState==0 || xmlHttp.readyState==4) {
+      if(xmlHttp.readyState==0 || xmlHttp.readyState==4) {
         xmlHttp.open("PUT","xml",true);
         xmlHttp.onreadystatechange=response;
         xmlHttp.send(null);

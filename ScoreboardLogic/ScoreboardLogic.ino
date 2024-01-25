@@ -125,7 +125,7 @@ const char* nine =   "####"
                      "...#" 
                      "...#" 
                      "####";
-// Access each map by corresponding index
+// Access each map by its corresponding index
 const char* numberConfigs[] {zero, one, two, three, four, five, six, seven, eight, nine};
 
 struct DigitElement
@@ -322,21 +322,15 @@ void VisitorScoreSet(int val) {
   registerInteraction("VisitorScoreSet", val);
 }
 
+void Possession(int pos) {
+  nPos = pos;
+  registerInteraction("Possession", nPos);
+}
+
 void HomeBonus() {
   bBonusHome = !bBonusHome;
   registerInteraction("HomeBonus");
 }
-
-void HomePos() {
-  nPos = 0;
-  registerInteraction("HomePos");
-}
-
-void VisitorPos() {
-  nPos = 1;
-  registerInteraction("VisitorPos");
-}
-
 void VisitorBonus() {
   bBonusVisitor = !bBonusVisitor;
   registerInteraction("VisitorBonus");
@@ -495,10 +489,15 @@ void setup() {
       else if (server.argName(0) == "set") TimeSetMinutes(val);
     }
   });
+  server.on("/Possession", [](){ 
+    if (server.args())
+    {
+      int val = server.arg(0).toInt();
+      Possession(val);
+    }
+  });
   server.on("/PeriodChange", PeriodChange);
   server.on("/HomeBonus", HomeBonus);
-  server.on("/HomePos", HomePos);
-  server.on("/VisitorPos", VisitorPos);
   server.on("/VisitorBonus", VisitorBonus);
   server.on("/StartStopTimer", StartStopTimer);
   server.on("/Buzzer", Buzzer);
