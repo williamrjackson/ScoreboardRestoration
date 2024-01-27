@@ -8,14 +8,20 @@
 #include <FastLED.h>
 #include "ControlPage.h"  // .h file that stores your html page code
 
+#define ENABLE_LOGGING // Comment/Uncomment to enable logging
+
 #define AP_SSID "Keverian Scoreboard"
 #define AP_PASS "PASSSWORD"
-#define IDLE_MIN 30
-// #define ENABLE_LOGGING // Comment/Uncomment to enable logging
 
-#define NUM_LEDS 254
+// How many minutes of no interaction (or timer events) before automatically sleeping
+#define IDLE_MIN 30
+
 #define DATA_PIN 3
 #define BUZZER_PIN 5
+
+// LEDs available in full strip
+#define NUM_LEDS 254
+CRGB leds[NUM_LEDS];
 
 const byte DNS_PORT = 53;
 DNSServer dnsServer;
@@ -23,17 +29,40 @@ DNSServer dnsServer;
 IPAddress apIP(172, 217, 28, 1);
 IPAddress ip;
 
-// gotta create a server
+// Create a Server
 WebServer server(80);
 
-// the XML array size needs to be bigger that your maximum expected size.
+// XML array size needs to be bigger that your maximum expected size.
 char XML[256];
 // buffer for XML char operations
 char buf[32];
 
-uint32_t boardUpdate = 1000;
+// Scheduling vars
+uint32_t boardUpdateTime = 1000;
+uint32_t buzzerStartTime = 0;
 uint32_t buzzerDuration = 1000;
 uint32_t millisCache = 0;
+uint32_t lastInteraction = 0;
+
+// States
+bool bTimeRunning = false;
+bool bBuzzing = false;
+bool sleepMode = false;
+
+// To to hold fully lit - requires 6 consecutive "HomeScoreSet: 0" commands.
+int nConsecutiveResets = 0;
+
+// Global vars
+//********************************************************
+int nPeriod = 1;
+// Total seconds on clock
+int nSeconds = 0;
+int nHomeScore = 0;
+int nVisitorScore = 0;
+bool bBonusHome = false;
+bool bBonusVisitor = false;
+// Possession: 0 home; 1 visitors; 2 both for all-on mode
+int nPossession = 0;
 
 //  LED Layout:
 //
@@ -45,7 +74,7 @@ uint32_t millisCache = 0;
 //     1   5          10
 //     0   6  7   8   9
 
-// Digit LED Configs
+// Digit LED Maps
 const char* zero =  "####"
                     "#..#"
                     "#..#"
@@ -102,6 +131,14 @@ const char* six =   "#..."
                     "#..#"
                     "####";
 
+// const char* six =   "####"
+//                     "#..."
+//                     "#..."
+//                     "####"
+//                     "#..#"
+//                     "#..#"
+//                     "####";
+
 const char* seven = "####"
                     "...#"
                     "...#"
@@ -126,14 +163,17 @@ const char* nine =  "####"
                     "...#"
                     "####";
 // Access each map by its corresponding index
-const char* numberConfigs[]{ zero, one, two, three, four, five, six, seven, eight, nine };
+const char* numberLedMaps[]{ zero, one, two, three, four, five, six, seven, eight, nine };
 
+// Scoreboard LED "cluster" objects
 struct DigitElement {
-  int baseOffset;
-  bool hasOneHundred;
-  int segmentedDigitCount;
+  int baseOffset; // First LED index
+  bool hasOneHundred; // Are the first 7 LEDS the "1" available on 3-digit panels?
+  int segmentedDigitCount; // How many non-1 digits are there?
   CRGB defaultColor;
 };
+// Indicators are groups of consecutive LEDs that are treated
+// as a single unit.
 struct IndicatorElement {
   int baseOffset;
   int lightCount;
@@ -151,30 +191,28 @@ IndicatorElement visitorBonus = { 240, 4, CRGB::Green };
 IndicatorElement homePosession = { 244, 6, CRGB::Red };
 IndicatorElement visitorPosession = { 249, 6, CRGB::Red };
 
-CRGB leds[NUM_LEDS];
-CRGB offColor = CRGB::Black;
 
-void StringToDigit(const char* str, int ledStartIndex, CRGB col) {
-  leds[ledStartIndex] = str[0] == '#' ? col : offColor;
-  leds[ledStartIndex + 1] = str[4] == '#' ? col : offColor;
-  leds[ledStartIndex + 2] = str[8] == '#' ? col : offColor;
-  leds[ledStartIndex + 3] = str[12] == '#' ? col : offColor;
-  leds[ledStartIndex + 4] = str[16] == '#' ? col : offColor;
-  leds[ledStartIndex + 5] = str[20] == '#' ? col : offColor;
-  leds[ledStartIndex + 6] = str[24] == '#' ? col : offColor;
-  leds[ledStartIndex + 7] = str[25] == '#' ? col : offColor;
-  leds[ledStartIndex + 8] = str[26] == '#' ? col : offColor;
-  leds[ledStartIndex + 9] = str[27] == '#' ? col : offColor;
-  leds[ledStartIndex + 10] = str[23] == '#' ? col : offColor;
-  leds[ledStartIndex + 11] = str[19] == '#' ? col : offColor;
-  leds[ledStartIndex + 12] = str[15] == '#' ? col : offColor;
-  leds[ledStartIndex + 13] = str[11] == '#' ? col : offColor;
-  leds[ledStartIndex + 14] = str[7] == '#' ? col : offColor;
-  leds[ledStartIndex + 15] = str[3] == '#' ? col : offColor;
-  leds[ledStartIndex + 16] = str[2] == '#' ? col : offColor;
-  leds[ledStartIndex + 17] = str[1] == '#' ? col : offColor;
-  leds[ledStartIndex + 19] = str[13] == '#' ? col : offColor;
-  leds[ledStartIndex + 20] = str[14] == '#' ? col : offColor;
+void DigitFromMap(const char* str, int ledStartIndex, CRGB col) {
+  leds[ledStartIndex] =       str[0] ==   '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 1] =   str[4] ==   '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 2] =   str[8] ==   '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 3] =   str[12] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 4] =   str[16] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 5] =   str[20] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 6] =   str[24] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 7] =   str[25] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 8] =   str[26] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 9] =   str[27] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 10] =  str[23] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 11] =  str[19] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 12] =  str[15] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 13] =  str[11] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 14] =  str[7] ==   '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 15] =  str[3] ==   '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 16] =  str[2] ==   '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 17] =  str[1] ==   '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 19] =  str[13] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex + 20] =  str[14] ==  '#' ? col : CRGB::BLack;
 }
 
 //*****************************************************
@@ -184,7 +222,7 @@ void UpdateDigit(DigitElement el, int value) {
 void UpdateDigit(DigitElement el, int value, CRGB col) {
   int currentRoot = el.baseOffset;
   if (el.hasOneHundred) {
-    CRGB hundred = (value > 99) ? col : offColor;
+    CRGB hundred = (value > 99) ? col : CRGB::BLack;
 
     for (int i = currentRoot; i < currentRoot + 7; i++) {
       leds[i] = hundred;
@@ -193,11 +231,11 @@ void UpdateDigit(DigitElement el, int value, CRGB col) {
   }
   if (el.segmentedDigitCount > 1) {
     int tensIndex = (value / 10) % 10;
-    StringToDigit(numberConfigs[tensIndex], currentRoot, col);
+    DigitFromMap(numberLedMaps[tensIndex], currentRoot, col);
     currentRoot += 22;
   }
   int onesIndex = (value % 10);
-  StringToDigit(numberConfigs[onesIndex], currentRoot, col);
+  DigitFromMap(numberLedMaps[onesIndex], currentRoot, col);
 }
 
 void UpdateIndicator(IndicatorElement el, bool value) {
@@ -205,32 +243,17 @@ void UpdateIndicator(IndicatorElement el, bool value) {
 }
 void UpdateIndicator(IndicatorElement el, bool value, CRGB col) {
   for (int i = el.baseOffset; i < el.baseOffset + el.lightCount; i++) {
-    leds[i] = value ? col : offColor;
+    leds[i] = value ? col : CRGB::BLack;
   }
 }
 
-//********************************************************
-int nPeriod = 1;
-// Total seconds on clock
-int nSeconds = 0;
-int nHomeScore = 0;
-int nVisitorScore = 0;
-bool bBonusHome = false;
-bool bBonusVisitor = false;
-// Possession: 0 home; 1 visitors; 2 both for all-on mode
-int nPos = 0;
-bool bTimeRunning = false;
-bool bBuzzing = false;
-uint32_t buzzerStartTime = 0;
-uint32_t lastInteraction = 0;
-bool offMode = false;
-// To to hold fully lit - requires 6 consecutive "HomeScoreSet: 0" commands.
-int nConsecutiveResets = 0;
+// Update routines
+//*****************************************************
 
-void UpdateScoreboard() {
-  if ((millis() - boardUpdate) < 1000) { return; }
-  boardUpdate = millis();
-  if (offMode) { return; }
+void ScoreboardLedRoutine() {
+  if ((millis() - boardUpdateTime) < 1000) { return; }
+  boardUpdateTime = millis();
+  if (sleepMode) { return; }
 
   if (bTimeRunning) {
     TimeChange(-1);
@@ -244,7 +267,7 @@ void UpdateScoreboard() {
   int visitor = constrain(nVisitorScore, 0, 199);
   int periodWrite = constrain(nPeriod, 0, 9);
   int seconds = constrain(nSeconds, 0, 6039);
-  int pos = constrain(nPos, 0, 2);
+  int pos = constrain(nPossession, 0, 2);
   int minutesCalc = nSeconds / 60;
   int secondsCalc = nSeconds % 60;
   bool bonusHomeState = bBonusHome;
@@ -267,7 +290,7 @@ void UpdateScoreboard() {
   }
   if (nConsecutiveResets > 6) {
 #ifdef ENABLE_LOGGING
-    Serial.println("[Secret Force Off]");
+    Serial.println("[Secret Force to Sleep]");
 #endif
     lastInteraction = millis() - (IDLE_MIN * 60000);
   }
@@ -293,18 +316,18 @@ void BuzzRoutine() {
   }
 }
 void IdleRoutine() {
-  if (offMode) { return; }
+  if (sleepMode) { return; }
   if (millis() - lastInteraction < IDLE_MIN * 60000) { return; }
 
-  offMode = true;
+  sleepMode = true;
 #ifdef ENABLE_LOGGING
-  Serial.println("Off Mode");
+  Serial.println("Sleep Mode");
 #endif
   for (int i = 0; i < NUM_LEDS; i++) {
-    leds[i] = offColor;
+    leds[i] = CRGB::BLack;
   }
   FastLED.show();
-  // Reset all values on timeout:
+  // Reset all values on sleep:
   nConsecutiveResets = 0;
   nPeriod = 1;
   nSeconds = 0;
@@ -312,47 +335,42 @@ void IdleRoutine() {
   nVisitorScore = 0;
   bBonusHome = false;
   bBonusVisitor = false;
-  nPos = 0;  // 0 home; 1 visitors; 2 both
+  nPossession = 0;  // 0 home; 1 visitors; 2 both
   GenerateXML();
 }
 
+// Interaction Functions
+//*****************************************************
+
+// Score Functions
 void HomeScoreChange(int amt) {
   nHomeScore += amt;
   nHomeScore = constrain(nHomeScore, 0, 199);
   RegisterInteraction("HomeScoreChange", amt);
 }
-
-void HomeScoreSet(int val) {
-  nHomeScore = val;
-  nHomeScore = constrain(nHomeScore, 0, 199);
-  RegisterInteraction("HomeScoreSet", val);
-}
-
-void PeriodChange() {
-  nPeriod++;
-  if (nPeriod > 6 || nPeriod < 1) {
-    nPeriod = 1;
-  }
-  RegisterInteraction("PeriodChange");
-}
-
 void VisitorScoreChange(int amt) {
   nVisitorScore += amt;
   nVisitorScore = constrain(nVisitorScore, 0, 199);
   RegisterInteraction("VisitorScoreChange", amt);
 }
-
+void HomeScoreSet(int val) {
+  nHomeScore = val;
+  nHomeScore = constrain(nHomeScore, 0, 199);
+  RegisterInteraction("HomeScoreSet", val);
+}
 void VisitorScoreSet(int val) {
   nVisitorScore = val;
   nVisitorScore = constrain(nVisitorScore, 0, 199);
   RegisterInteraction("VisitorScoreSet", val);
 }
 
+// Possession radio option
 void Possession(int pos) {
-  nPos = pos;
-  RegisterInteraction("Possession", nPos);
+  nPossession = pos;
+  RegisterInteraction("Possession", nPossession);
 }
 
+// Bonus toggle functions
 void HomeBonus() {
   bBonusHome = !bBonusHome;
   RegisterInteraction("HomeBonus");
@@ -362,6 +380,16 @@ void VisitorBonus() {
   RegisterInteraction("VisitorBonus");
 }
 
+// Increment period. Loops 1-6
+void PeriodChange() {
+  nPeriod++;
+  if (nPeriod > 6 || nPeriod < 1) {
+    nPeriod = 1;
+  }
+  RegisterInteraction("PeriodChange");
+}
+
+// Timer Functions
 void StartStopTimer() {
   if (bTimeRunning) {
     TimerStop();
@@ -377,13 +405,11 @@ void TimerStop() {
   bTimeRunning = false;
   RegisterInteraction("TimerState", 0);
 }
-
 void TimeChange(int seconds) {
   nSeconds += seconds;
   nSeconds = constrain(nSeconds, 0, 6039);
   RegisterInteraction("TimeChange", seconds);
 }
-
 void TimeSetMinutes(int minutes) {
   if (bTimeRunning) TimerStop();
   nSeconds = minutes * 60;
@@ -391,6 +417,7 @@ void TimeSetMinutes(int minutes) {
   RegisterInteraction("TimerSet", nSeconds / 60);
 }
 
+// Buzzer function
 void BuzzerStart() {
   if (bBuzzing) { return; }
   digitalWrite(BUZZER_PIN, HIGH);
@@ -398,10 +425,7 @@ void BuzzerStart() {
   buzzerStartTime = millis();
 }
 
-void HandleNotFound() {
-  server.send(200, "text/plain", "");
-}
-
+// Propegate/process button taps from the controller and timer events
 void RegisterInteraction(const char interactionName[], int value) {
   char interactionValue[64];
   sprintf(interactionValue, "%s: %d", interactionName, value);
@@ -411,7 +435,7 @@ void RegisterInteraction(const char interactionName[]) {
   GenerateXML();
   lastInteraction = millis();
   // Count HomeScoreReset presses to enter
-  // Off(7) or Maintenance(6) Mode
+  // Sleep(7) or Maintenance(6) Mode
   if (strcmp(interactionName, "HomeScoreSet: 0") == 0) {
     nConsecutiveResets++;
 #ifdef ENABLE_LOGGING
@@ -422,11 +446,11 @@ void RegisterInteraction(const char interactionName[]) {
     nConsecutiveResets = 0;
   }
 
-  if (offMode) {
+  if (sleepMode) {
 #ifdef ENABLE_LOGGING
-    Serial.println("On Mode");
+    Serial.println("Wake up from sleep mode");
 #endif
-    offMode = false;
+    sleepMode = false;
   }
   server.send(200, "text/plain", "");
 #ifdef ENABLE_LOGGING
@@ -435,6 +459,7 @@ void RegisterInteraction(const char interactionName[]) {
   Serial.println("]");
 #endif
 }
+
 void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   Serial.begin(9600);
@@ -522,7 +547,7 @@ void loop() {
   // Eventually millis() loops back to 0
   // Avoid getting stuck by resetting everything when it happens
   if (millis() < millisCache) {
-    boardUpdate = 0;
+    boardUpdateTime = 0;
     lastInteraction = 0;
     buzzerStartTime = 0;
 #ifdef ENABLE_LOGGING
@@ -531,7 +556,7 @@ void loop() {
   }
 
   millisCache = millis();
-  UpdateScoreboard();
+  ScoreboardLedRoutine();
   BuzzRoutine();
   IdleRoutine();
 
@@ -542,6 +567,10 @@ void loop() {
 
 void SendWebsite() {
   server.send(200, "text/html", PAGE_MAIN);
+}
+
+void HandleNotFound() {
+  server.send(200, "text/plain", "");
 }
 
 // code to send the main web page
@@ -560,7 +589,7 @@ void GenerateXML() {
   strcat(XML, buf);
   sprintf(buf, "<Period>%d</Period>\n", nPeriod);
   strcat(XML, buf);
-  sprintf(buf, "<Pos>%d</Pos>\n", nPos);
+  sprintf(buf, "<Pos>%d</Pos>\n", nPossession);
   strcat(XML, buf);
   sprintf(buf, "<HomeBonus>%d</HomeBonus>\n", bBonusHome ? 1 : 0);
   strcat(XML, buf);
@@ -576,9 +605,10 @@ void GenerateXML() {
 
 void printWifiStatus() {
   // print the SSID of the network you're attached to:
-  Serial.print("Connected: ");
+  Serial.print("Running at ");
   Serial.println(WiFi.SSID());
   Serial.print("[");
   Serial.print(AP_SSID);
   Serial.println("]");
+  Serial.println("http://scoreboard.local");
 }
