@@ -40,7 +40,7 @@ char buf[32];
 // Scheduling vars
 uint32_t boardUpdateTime = 1000;
 uint32_t buzzerStartTime = 0;
-uint32_t buzzerDuration = 1000;
+uint32_t buzzerDuration = 1500;
 uint32_t millisCache = 0;
 uint32_t lastInteraction = 0;
 
@@ -131,6 +131,7 @@ const char* six =   "#..."
                     "#..#"
                     "####";
 
+// Favoring min required leds
 // const char* six =   "####"
 //                     "#..."
 //                     "#..."
@@ -161,7 +162,16 @@ const char* nine =  "####"
                     "####"
                     "...#"
                     "...#"
-                    "####";
+                    "...#";
+
+// const char* nine =  "####"
+//                     "#..#"
+//                     "#..#"
+//                     "####"
+//                     "...#"
+//                     "...#"
+//                     "####";
+                    
 // Access each map by its corresponding index
 const char* numberLedMaps[]{ zero, one, two, three, four, five, six, seven, eight, nine };
 
