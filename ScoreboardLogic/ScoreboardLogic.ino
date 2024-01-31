@@ -17,7 +17,7 @@
 #define IDLE_MIN 30
 
 #define DATA_PIN 3
-#define BUZZER_PIN 5
+#define BUZZER_PIN 13
 
 // LEDs available in full strip
 #define NUM_LEDS 254
@@ -193,26 +193,26 @@ IndicatorElement visitorPosession = { 249, 6, CRGB::Red };
 
 
 void DigitFromMap(const char* str, int ledStartIndex, CRGB col) {
-  leds[ledStartIndex] =       str[0] ==   '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 1] =   str[4] ==   '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 2] =   str[8] ==   '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 3] =   str[12] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 4] =   str[16] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 5] =   str[20] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 6] =   str[24] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 7] =   str[25] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 8] =   str[26] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 9] =   str[27] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 10] =  str[23] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 11] =  str[19] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 12] =  str[15] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 13] =  str[11] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 14] =  str[7] ==   '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 15] =  str[3] ==   '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 16] =  str[2] ==   '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 17] =  str[1] ==   '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 19] =  str[13] ==  '#' ? col : CRGB::BLack;
-  leds[ledStartIndex + 20] =  str[14] ==  '#' ? col : CRGB::BLack;
+  leds[ledStartIndex] =       str[0] ==   '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 1] =   str[4] ==   '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 2] =   str[8] ==   '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 3] =   str[12] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 4] =   str[16] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 5] =   str[20] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 6] =   str[24] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 7] =   str[25] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 8] =   str[26] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 9] =   str[27] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 10] =  str[23] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 11] =  str[19] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 12] =  str[15] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 13] =  str[11] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 14] =  str[7] ==   '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 15] =  str[3] ==   '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 16] =  str[2] ==   '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 17] =  str[1] ==   '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 19] =  str[13] ==  '#' ? col : CRGB::Black;
+  leds[ledStartIndex + 20] =  str[14] ==  '#' ? col : CRGB::Black;
 }
 
 //*****************************************************
@@ -222,7 +222,7 @@ void UpdateDigit(DigitElement el, int value) {
 void UpdateDigit(DigitElement el, int value, CRGB col) {
   int currentRoot = el.baseOffset;
   if (el.hasOneHundred) {
-    CRGB hundred = (value > 99) ? col : CRGB::BLack;
+    CRGB hundred = (value > 99) ? col : CRGB::Black;
 
     for (int i = currentRoot; i < currentRoot + 7; i++) {
       leds[i] = hundred;
@@ -243,7 +243,7 @@ void UpdateIndicator(IndicatorElement el, bool value) {
 }
 void UpdateIndicator(IndicatorElement el, bool value, CRGB col) {
   for (int i = el.baseOffset; i < el.baseOffset + el.lightCount; i++) {
-    leds[i] = value ? col : CRGB::BLack;
+    leds[i] = value ? col : CRGB::Black;
   }
 }
 
@@ -324,7 +324,7 @@ void IdleRoutine() {
   Serial.println("Sleep Mode");
 #endif
   for (int i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB::BLack;
+    leds[i] = CRGB::Black;
   }
   FastLED.show();
   // Reset all values on sleep:
