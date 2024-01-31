@@ -546,6 +546,8 @@ void setup() {
 void loop() {
   // Eventually millis() loops back to 0
   // Avoid getting stuck by resetting everything when it happens
+  // Note: this can make a timer tick or buzzer last up to double the intended time,
+  // but will only happen once every ~50 days of continuous operation
   if (millis() < millisCache) {
     boardUpdateTime = 0;
     lastInteraction = 0;
