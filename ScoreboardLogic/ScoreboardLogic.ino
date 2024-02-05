@@ -23,6 +23,12 @@
 #define NUM_LEDS 254
 CRGB leds[NUM_LEDS];
 
+CRGB ScoreClr = CRGB(0xAF0000);
+CRGB TimeClr = CRGB(0x649C00);
+CRGB PeriodClr = CRGB(0x00FF00);
+CRGB BonusClr = CRGB(0x0000FF);
+CRGB PossClr = CRGB(0xFF8000);
+
 const byte DNS_PORT = 53;
 DNSServer dnsServer;
 
@@ -190,16 +196,16 @@ struct IndicatorElement {
   CRGB defaultColor;
 };
 
-DigitElement homeScore = { 0, true, 2, CRGB::Red };
-DigitElement timeMinutes = { 50, false, 2, CRGB::Yellow };
-DigitElement timeSeconds = { 93, false, 2, CRGB::Yellow };
-DigitElement visitorScore = { 136, true, 2, CRGB::Red };
-DigitElement period = { 186, false, 1, CRGB::Green };
+DigitElement homeScore = { 0, true, 2, ScoreClr };
+DigitElement timeMinutes = { 50, false, 2, TimeClr };
+DigitElement timeSeconds = { 93, false, 2, TimeClr };
+DigitElement visitorScore = { 136, true, 2, ScoreClr };
+DigitElement period = { 186, false, 1, PeriodClr };
 
-IndicatorElement homeBonus = { 236, 4, CRGB::Green };
-IndicatorElement visitorBonus = { 240, 4, CRGB::Green };
-IndicatorElement homePosession = { 244, 6, CRGB::Red };
-IndicatorElement visitorPosession = { 249, 6, CRGB::Red };
+IndicatorElement homeBonus = { 236, 4, BonusClr };
+IndicatorElement visitorBonus = { 240, 4, BonusClr };
+IndicatorElement homePosession = { 244, 6, PossClr };
+IndicatorElement visitorPosession = { 249, 6, PossClr };
 
 
 void DigitFromMap(const char* str, int ledStartIndex, CRGB col) {
