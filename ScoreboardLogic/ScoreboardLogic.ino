@@ -8,7 +8,7 @@
 #include <FastLED.h>
 #include "ControlPage.h"  // .h file that stores your html page code
 
-#define ENABLE_LOGGING // Comment/Uncomment to enable logging
+// #define ENABLE_LOGGING // Comment/Uncomment to enable logging
 
 #define AP_SSID "Keverian Scoreboard"
 #define AP_PASS "PASSSWORD"
@@ -20,14 +20,8 @@
 #define BUZZER_PIN 13
 
 // LEDs available in full strip
-#define NUM_LEDS 254
+#define NUM_LEDS 234
 CRGB leds[NUM_LEDS];
-
-CRGB ScoreClr = CRGB(0xAF0000);
-CRGB TimeClr = CRGB(0x649C00);
-CRGB PeriodClr = CRGB(0x00FF00);
-CRGB BonusClr = CRGB(0x0000FF);
-CRGB PossClr = CRGB(0xFF8000);
 
 const byte DNS_PORT = 53;
 DNSServer dnsServer;
@@ -177,7 +171,7 @@ const char* nine =  "####"
 //                     "...#"
 //                     "...#"
 //                     "####";
-                    
+
 // Access each map by its corresponding index
 const char* numberLedMaps[]{ zero, one, two, three, four, five, six, seven, eight, nine };
 
@@ -196,16 +190,16 @@ struct IndicatorElement {
   CRGB defaultColor;
 };
 
-DigitElement homeScore = { 0, true, 2, ScoreClr };
-DigitElement timeMinutes = { 50, false, 2, TimeClr };
-DigitElement timeSeconds = { 93, false, 2, TimeClr };
-DigitElement visitorScore = { 136, true, 2, ScoreClr };
-DigitElement period = { 186, false, 1, PeriodClr };
+DigitElement homeScore = { 0, true, 2, CRGB::Red };
+DigitElement timeMinutes = { 50, false, 2, CRGB::Yellow };
+DigitElement timeSeconds = { 93, false, 2, CRGB::Yellow };
+DigitElement visitorScore = { 136, true, 2, CRGB::Red };
 
-IndicatorElement homeBonus = { 236, 4, BonusClr };
-IndicatorElement visitorBonus = { 240, 4, BonusClr };
-IndicatorElement homePosession = { 244, 6, PossClr };
-IndicatorElement visitorPosession = { 249, 6, PossClr };
+IndicatorElement visitorBonus = { 186, 9, CRGB::Blue };
+IndicatorElement visitorPosession = { 195, 4, CRGB::Red };
+DigitElement period = { 199, false, 1, CRGB::Green };
+IndicatorElement homePosession = { 220, 4, CRGB::Red };
+IndicatorElement homeBonus = { 224, 9, CRGB::Blue };
 
 
 void DigitFromMap(const char* str, int ledStartIndex, CRGB col) {
@@ -562,8 +556,6 @@ void setup() {
 void loop() {
   // Eventually millis() loops back to 0
   // Avoid getting stuck by resetting everything when it happens
-  // Note: this can make a timer tick or buzzer last up to double the intended time,
-  // but will only happen once every ~50 days of continuous operation
   if (millis() < millisCache) {
     boardUpdateTime = 0;
     lastInteraction = 0;
