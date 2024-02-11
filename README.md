@@ -1,5 +1,5 @@
 # ESP32 & FASTLED Wireless Scoreboard
-### 1980s Basketball Scoreboard Restoration
+### 1980s Basketball Scoreboard Functional Restoration
     
 Scoreboard appears as a WiFi Access Point. Display panels are lit using WS2812b addressable LEDs. 
 
