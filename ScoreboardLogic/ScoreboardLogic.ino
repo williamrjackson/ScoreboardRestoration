@@ -6,7 +6,7 @@
 #include <DNSServer.h>
 #include <WebServer.h>
 #include <FastLED.h>
-#include "ControlPage.h"  // .h file that stores your html page code
+#include "ControlPage.h"  // .h file that stores Control Page HTML
 
 // #define ENABLE_LOGGING // Comment/Uncomment to enable logging
 
@@ -40,7 +40,7 @@ char buf[32];
 // Scheduling vars
 uint32_t boardUpdateTime = 1000;
 uint32_t buzzerStartTime = 0;
-uint32_t buzzerDuration = 1500;
+uint32_t buzzerDuration = 2000;
 uint32_t millisCache = 0;
 uint32_t lastInteraction = 0;
 

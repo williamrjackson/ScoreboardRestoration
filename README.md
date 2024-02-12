@@ -3,7 +3,7 @@
 ### 1980s Basketball Scoreboard Functional Restoration
 Scoreboard appears as a WiFi Access Point. Display panels are lit using WS2812b addressable LEDs. 
 
-![Physical Scoreboard](Scoreboard.jpeg)   
+![Physical Scoreboard](Scoreboard.png)   
 
 ### Updated with ESP32 & LEDs    
 ![Updated Wireless Test](Install.gif)
