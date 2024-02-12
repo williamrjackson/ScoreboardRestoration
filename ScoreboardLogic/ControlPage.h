@@ -98,10 +98,10 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
           <td></td>
         </tr>
         <tr>
-          <td colspan="2"><button type="button" class="btn" id="homePosessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="PossessionSet(0)">Pos</button></td>
+          <td colspan="2"><button type="button" class="btn" id="homePossessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="PossessionSet(0)">Pos</button></td>
           <td><button type="button" class="btn" id="homeBonusDisp" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="HomeBonus()">Bonus</button></td>
           <td><button type="button" class="btn" id="visitorBonusDisp" style="height: 90%; width:90%; color: rgb(253, 255, 192)" onclick="VisitorBonus()">Bonus</button></td>
-          <td colspan="2"><button type="button" class="btn" id="visitorPosessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="PossessionSet(1)">Pos</button></td>
+          <td colspan="2"><button type="button" class="btn" id="visitorPossessionDisp" style="height: 90%; width:90%; color: rgb(254, 194, 103)" onclick="PossessionSet(1)">Pos</button></td>
         </tr>
         <tr>
           <td><button type="button" class="btn" style="color: pink" onclick="HomeScoreChange(2)">Score<br>+ 2</button></td>
@@ -227,12 +227,12 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
       xmldoc = xmlResponse.getElementsByTagName("Pos");
       message = xmldoc[0].firstChild.nodeValue;
       if (message == 0) {
-        document.getElementById("homePosessionDisp").style.backgroundColor=posOnColor;
-        document.getElementById("visitorPosessionDisp").style.backgroundColor=buttonOffColor; 
+        document.getElementById("homePossessionDisp").style.backgroundColor=posOnColor;
+        document.getElementById("visitorPossessionDisp").style.backgroundColor=buttonOffColor; 
       }
       else {
-        document.getElementById("homePosessionDisp").style.backgroundColor=buttonOffColor;
-        document.getElementById("visitorPosessionDisp").style.backgroundColor=posOnColor;
+        document.getElementById("homePossessionDisp").style.backgroundColor=buttonOffColor;
+        document.getElementById("visitorPossessionDisp").style.backgroundColor=posOnColor;
       }
 
       xmldoc = xmlResponse.getElementsByTagName("HomeBonus");
@@ -272,7 +272,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         xmlHttp.onreadystatechange=response;
         xmlHttp.send(null);
       }       
-        // you may have to play with this value, big pages need more porcessing time, and hence
+        // you may have to play with this value, big pages need more processing time, and hence
         // a longer timeout
         setTimeout("process()", 200);
     }

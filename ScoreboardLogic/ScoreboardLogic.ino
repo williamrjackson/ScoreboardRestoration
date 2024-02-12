@@ -156,13 +156,14 @@ const char* eight = "####"
                     "#..#"
                     "####";
 
+// Favoring for better differentiating 9 and 4
 const char* nine =  "####"
                     "#..#"
                     "#..#"
                     "####"
                     "...#"
                     "...#"
-                    "...#";
+                    "####";
 
 // const char* nine =  "####"
 //                     "#..#"
@@ -170,7 +171,8 @@ const char* nine =  "####"
 //                     "####"
 //                     "...#"
 //                     "...#"
-//                     "####";
+//                     "...#";
+
 
 // Access each map by its corresponding index
 const char* numberLedMaps[]{ zero, one, two, three, four, five, six, seven, eight, nine };
@@ -196,9 +198,9 @@ DigitElement timeSeconds = { 93, false, 2, CRGB::Yellow };
 DigitElement visitorScore = { 136, true, 2, CRGB::Red };
 
 IndicatorElement visitorBonus = { 186, 9, CRGB::Blue };
-IndicatorElement visitorPosession = { 195, 4, CRGB::Red };
+IndicatorElement visitorPossession = { 195, 4, CRGB::Red };
 DigitElement period = { 199, false, 1, CRGB::Green };
-IndicatorElement homePosession = { 220, 4, CRGB::Red };
+IndicatorElement homePossession = { 220, 4, CRGB::Red };
 IndicatorElement homeBonus = { 224, 9, CRGB::Blue };
 
 
@@ -310,8 +312,8 @@ void ScoreboardLedRoutine() {
   UpdateDigit(timeSeconds, secondsCalc);
   UpdateDigit(period, periodWrite);
 
-  UpdateIndicator(homePosession, pos != 1);
-  UpdateIndicator(visitorPosession, pos != 0);
+  UpdateIndicator(homePossession, pos != 1);
+  UpdateIndicator(visitorPossession, pos != 0);
   UpdateIndicator(homeBonus, bonusHomeState);
   UpdateIndicator(visitorBonus, bonusVisState);
 
@@ -481,8 +483,8 @@ void setup() {
   UpdateDigit(timeMinutes, 88);
   UpdateDigit(timeSeconds, 88);
   UpdateDigit(period, 8);
-  UpdateIndicator(homePosession, true);
-  UpdateIndicator(visitorPosession, true);
+  UpdateIndicator(homePossession, true);
+  UpdateIndicator(visitorPossession, true);
   UpdateIndicator(homeBonus, true);
   UpdateIndicator(visitorBonus, true);
 

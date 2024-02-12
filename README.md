@@ -39,16 +39,16 @@ Design inspired by the control console described in the [Service Manual](Similar
 * http://scoreboard.local/VisitorBonus
   * Toggles the state of Visitor Bonus
 * http://scoreboard.local/HomePos
-  * Sets Home Possession indicator on; Visitor Possesion indicator off
+  * Sets Home Possession indicator on; Visitor Possession indicator off
 * http://scoreboard.local/VisitorPos
-  * Sets Visitor Possession indicator on; Home Possesion indicator off
+  * Sets Visitor Possession indicator on; Home Possession indicator off
 * http://scoreboard.local/Buzzer
   * Manually triggers the buzzer
 
 ## Materials:
 - [ESP32 (30Pin)](https://a.co/d/d86ifeU)
 - [ESP32 Breakout Board](https://a.co/d/4L5r7AB)
-- [WS2812b LED String](https://a.co/d/gDH9oeh)
+- [WS2812b LED String](https://a.co/d/gDH9oeh) ("Fairy Lights" selected because of convenient spacing, flexibility and built-in diffusion)
 - [LED Connectors](https://a.co/d/a1vO4zF)
 - [Extension Cable](https://a.co/d/eUv22nI)
 - [Solid State Relay](https://a.co/d/gWr1grI)
