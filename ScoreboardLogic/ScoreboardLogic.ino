@@ -321,7 +321,10 @@ void ScoreboardLedRoutine() {
 }
 
 void BuzzRoutine() {
-  if (!bBuzzing) { return; }
+  if (!bBuzzing) {
+    digitalWrite(BUZZER_PIN, LOW);
+    return; 
+  }
   if (millis() - buzzerStartTime > buzzerDuration) {
     digitalWrite(BUZZER_PIN, LOW);
     bBuzzing = false;
@@ -436,6 +439,18 @@ void BuzzerStart() {
   bBuzzing = true;
   buzzerStartTime = millis();
 }
+// Sub function
+void Sub() {
+  if (bBuzzing) { return; }
+  TimerStop();
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(100);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(50);
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(125);
+  digitalWrite(BUZZER_PIN, LOW);
+}
 
 // Propegate/process button taps from the controller and timer events
 void RegisterInteraction(const char interactionName[], int value) {
@@ -549,7 +564,7 @@ void setup() {
   server.on("/HomeBonus", HomeBonus);
   server.on("/VisitorBonus", VisitorBonus);
   server.on("/StartStopTimer", StartStopTimer);
-  server.on("/Buzzer", BuzzerStart);
+  server.on("/Buzzer", Sub);
   server.onNotFound(HandleNotFound);
 
   server.begin();

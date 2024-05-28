@@ -111,7 +111,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         <tr>              
           <td><button type="button" class="btn" style="color: pink" onclick="HomeScoreChange(1)">Score<br>+ 1</button></td>
           <td><button type="button" class="btn" style="color: pink" onclick="HomeScoreChange(3)">Score<br>+ 3</button></td>
-          <td colspan="2" rowspan="2"><button type="button" class="btn" style="color: rgb(192, 255, 239); height: 50%; width:80%;" onclick="Buzzer()">Buzzer</button></td>
+          <td colspan="2" rowspan="2"><button type="button" class="btn" style="color: rgb(192, 255, 239); height: 50%; width:80%;" onclick="Buzzer()">Sub</button></td>
           <td><button type="button" class="btn" style="color: pink" onclick="VisitorScoreChange(3)">Score<br>+ 3</button></td>
           <td><button type="button" class="btn" style="color: pink" onclick="VisitorScoreChange(1)">Score<br>+ 1</button></td>
         </tr>
